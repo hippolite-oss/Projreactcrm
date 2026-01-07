@@ -1,0 +1,365 @@
+.sidebar {
+  width: 260px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background-color: #2563eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 4px;
+  flex: 1;
+}
+
+/* Navigation Items */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #666;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background-color: #f5f5f5;
+  color: #2563eb;
+}
+
+.nav-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.nav-item svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.nav-label {
+  flex: 1;
+  text-align: left;
+}
+
+/* Submenu Styles */
+.submenu-container {
+  margin-bottom: 4px;
+}
+
+.submenu-header {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.submenu-header:hover {
+  background-color: #f5f5f5;
+  color: #2563eb;
+}
+
+.submenu-header.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.submenu-header .nav-item-content {
+  justify-content: space-between;
+}
+
+.chevron-icon {
+  transition: transform 0.2s ease;
+  color: #999;
+  width: 16px;
+  height: 16px;
+}
+
+.submenu-header:hover .chevron-icon {
+  color: #2563eb;
+}
+
+.submenu-header.active .chevron-icon {
+  color: #2563eb;
+}
+
+/* Submenu Items */
+.submenu-items {
+  margin-top: 4px;
+  margin-left: 32px;
+  padding-left: 8px;
+  border-left: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.submenu-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #666;
+  font-size: 13px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submenu-item:hover {
+  background-color: #f5f5f5;
+  color: #2563eb;
+}
+
+.submenu-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.submenu-item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submenu-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+.submenu-item.active .submenu-icon {
+  opacity: 1;
+}
+
+.submenu-label {
+  font-size: 13px;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #2563eb;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.user-role {
+  font-size: 11px;
+  color: #666;
+}
+
+/* Closed State */
+.sidebar.closed {
+  width: 70px;
+}
+
+.sidebar.closed .logo-text,
+.sidebar.closed .nav-label,
+.sidebar.closed .chevron-icon,
+.sidebar.closed .submenu-items,
+.sidebar.closed .user-details {
+  display: none;
+}
+
+.sidebar.closed .sidebar-nav {
+  padding: 16px 8px;
+  align-items: center;
+}
+
+.sidebar.closed .nav-item,
+.sidebar.closed .submenu-header {
+  padding: 12px;
+  width: 42px;
+  height: 42px;
+  justify-content: center;
+}
+
+.sidebar.closed .nav-item-content {
+  justify-content: center;
+}
+
+.sidebar.closed .submenu-header .nav-item-content {
+  justify-content: center;
+}
+
+/* Tooltip for closed state */
+.sidebar.closed .nav-item,
+.sidebar.closed .submenu-container {
+  position: relative;
+}
+
+.sidebar.closed .nav-item::after,
+.sidebar.closed .submenu-container::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.closed .nav-item:hover::after,
+.sidebar.closed .submenu-container:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar.closed .submenu-container::after {
+  content: attr(data-title);
+}
+
+/* Submenu hover state in closed mode */
+.sidebar.closed .submenu-container {
+  position: relative;
+}
+
+.sidebar.closed .submenu-container:hover .submenu-items {
+  display: flex;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-width: 180px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  margin-left: 0;
+  border: 1px solid #e5e7eb;
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    height: calc(100vh - 64px);
+    z-index: 99;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    width: 260px;
+  }
+
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar.closed .submenu-container:hover .submenu-items {
+    left: 260px;
+  }
+}
