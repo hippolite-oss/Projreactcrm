@@ -26,7 +26,7 @@ import { Invoice } from './invoices/entities/invoice.entity';
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT) || 5432,
       username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'admin123',
+      password: process.env.DB_PASSWORD || '0000',
       database: process.env.DB_DATABASE || 'crm',
       entities: [User, Client, Contact, Product, Quote, Invoice],
       synchronize: process.env.NODE_ENV !== 'production',
