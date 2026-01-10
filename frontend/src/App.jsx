@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import Home from './pages/Home' // Importez Home
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Clients from './pages/Clients'
@@ -11,7 +12,6 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import Layout from './components/Layout'
 import Nouveauclient from './pages/Nouveauclient'
-
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -27,8 +27,13 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      
+      {/* Route pour Home - accessible sans protection */}
+      <Route path="/" element={<Home />} />
+      
+      {/* Routes protégées */}
       <Route
-        path="/"
+        path="/app/*" // Utilisez un chemin de base pour les routes protégées
         element={
           <ProtectedRoute>
             <Layout />
@@ -45,6 +50,9 @@ function AppRoutes() {
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
       </Route>
+      
+      {/* Redirection pour les autres chemins */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
@@ -60,4 +68,3 @@ function App() {
 }
 
 export default App
-

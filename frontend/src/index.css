@@ -23,3 +23,7 @@ code {
   min-height: 100vh;
 }
 
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
