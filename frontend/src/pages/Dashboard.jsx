@@ -21,7 +21,15 @@ function Dashboard() {
   const fetchStats = async () => {
     try {
       const response = await axios.get('/api/dashboard/stats')
-      setStats(response.data)
+      const data = response.data || {}
+      setStats({
+        clients: data.clients ?? 0,
+        products: data.products ?? 0,
+        quotes: data.quotes ?? 0,
+        invoices: data.invoices ?? 0,
+        revenue: data.revenue ?? 0,
+        growth: data.growth ?? 0
+      })
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error)
     } finally {
@@ -30,12 +38,22 @@ function Dashboard() {
   }
 
   const statCards = [
-    { label: 'Clients', value: stats.clients, icon: Users, color: '#2563eb' },
-    { label: 'Produits', value: stats.products, icon: Package, color: '#10b981' },
-    { label: 'Devis', value: stats.quotes, icon: FileText, color: '#f59e0b' },
-    { label: 'Factures', value: stats.invoices, icon: Receipt, color: '#ef4444' },
-    { label: 'Revenus', value: `€${stats.revenue.toLocaleString()}`, icon: DollarSign, color: '#8b5cf6' },
-    { label: 'Croissance', value: `${stats.growth}%`, icon: TrendingUp, color: '#06b6d4' }
+    { label: 'Clients', value: stats.clients ?? 0, icon: Users, color: '#2563eb' },
+    { label: 'Produits', value: stats.products ?? 0, icon: Package, color: '#10b981' },
+    { label: 'Devis', value: stats.quotes ?? 0, icon: FileText, color: '#f59e0b' },
+    { label: 'Factures', value: stats.invoices ?? 0, icon: Receipt, color: '#ef4444' },
+    { 
+      label: 'Revenus', 
+      value: `€${(stats.revenue ?? 0).toLocaleString()}`, 
+      icon: DollarSign, 
+      color: '#8b5cf6' 
+    },
+    { 
+      label: 'Croissance', 
+      value: `${stats.growth ?? 0}%`, 
+      icon: TrendingUp, 
+      color: '#06b6d4' 
+    }
   ]
 
   if (loading) {
@@ -69,4 +87,3 @@ function Dashboard() {
 }
 
 export default Dashboard
-

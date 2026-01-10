@@ -53,7 +53,7 @@ npx ts-node src/scripts/init-user.ts
 ```
 
 Cela créera un utilisateur avec:
-- Email: `admin@crm.com`
+- Email: `admin@test.com`
 - Mot de passe: `admin123`
 
 #### Option 2: Via l'API (après avoir créé un endpoint d'inscription)
