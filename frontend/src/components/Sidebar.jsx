@@ -38,7 +38,7 @@ function Sidebar({ isOpen }) {
   const menuItems = [
     {
       type: 'link',
-      path: '/',
+      path: '/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
     },
@@ -48,8 +48,8 @@ function Sidebar({ isOpen }) {
       icon: Users,
       key: 'clients',
       items: [
-        { path: '/clients', label: 'Liste des clients', icon: Users },
-        { path: '/nouveauclient', label: 'Nouveau client', icon: UserPlus },
+        { path: '/dashboard/clients', label: 'Liste des clients', icon: Users }, // Changé ici
+        { path: '/dashboard/nouveauclient', label: 'Nouveau client', icon: UserPlus }, // Changé ici
       ]
     },
     {
@@ -58,8 +58,8 @@ function Sidebar({ isOpen }) {
       icon: Contact,
       key: 'contacts',
       items: [
-        { path: '/contacts', label: 'Liste des contacts', icon: Contact },
-        { path: '/nouveaucontact', label: 'Nouveau contact', icon: Contact2 },
+        { path: '/dashboard/contacts', label: 'Liste des contacts', icon: Contact }, // Changé ici
+        { path: '/dashboard/nouveaucontact', label: 'Nouveau contact', icon: Contact2 }, // Ajoutez cette route dans App.jsx si nécessaire
       ]
     },
     {
@@ -68,8 +68,8 @@ function Sidebar({ isOpen }) {
       icon: Package,
       key: 'products',
       items: [
-        { path: '/products', label: 'Liste des produits', icon: Package },
-        { path: '/nouveauproduit', label: 'Nouveau produit', icon: PackagePlus },
+        { path: '/dashboard/products', label: 'Liste des produits', icon: Package }, // Changé ici
+        { path: '/dashboard/Listproduits', label: 'Nouveau produit', icon: PackagePlus }, // Ajoutez cette route dans App.jsx si nécessaire
       ]
     },
     {
@@ -78,8 +78,8 @@ function Sidebar({ isOpen }) {
       icon: FileText,
       key: 'quotes',
       items: [
-        { path: '/quotes', label: 'Liste des devis', icon: FileText },
-        { path: '/nouveaudevis', label: 'Nouveau devis', icon: FilePlus },
+        { path: '/dashboard/quotes', label: 'Liste des devis', icon: FileText }, // Changé ici
+        { path: '/dashboard/nouveaudevis', label: 'Nouveau devis', icon: FilePlus }, // Ajoutez cette route dans App.jsx si nécessaire
       ]
     },
     {
@@ -88,19 +88,19 @@ function Sidebar({ isOpen }) {
       icon: Receipt,
       key: 'invoices',
       items: [
-        { path: '/invoices', label: 'Liste des factures', icon: Receipt },
-        { path: '/nouveaufacture', label: 'Nouvelle facture', icon:Receipt},
+        { path: '/dashboard/invoices', label: 'Liste des factures', icon: Receipt }, // Changé ici
+        { path: '/dashboard/Listeinvoices', label: 'Nouvelle facture', icon: Receipt }, // Ajoutez cette route dans App.jsx si nécessaire
       ]
     },
     {
       type: 'link',
-      path: '/reports',
+      path: '/dashboard/reports',
       label: 'Rapports',
       icon: BarChart3,
     },
     {
       type: 'link',
-      path: '/settings',
+      path: '/dashboard/settings',
       label: 'Paramètres',
       icon: Settings,
     }

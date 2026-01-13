@@ -133,7 +133,7 @@ const Header = () => {
                 <User size={18} />
                 <span>Connexion</span>
               </Link>
-              <Link to="/commande" className="hidden md:block">
+              <Link to="/Commande" className="hidden md:block">
                 <button className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-md hover:shadow-blue-200 transition-all flex items-center gap-2">
                   <ShoppingCart size={18} />
                   <span>Commander</span>
