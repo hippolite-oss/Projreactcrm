@@ -8,6 +8,7 @@ import {
   Contact2,
   Package,
   PackagePlus,
+  ShoppingCart,
   FileText,
   FilePlus,
   Receipt,
@@ -64,12 +65,12 @@ function Sidebar({ isOpen }) {
     },
     {
       type: 'submenu',
-      label: 'Produits / Services',
+      label: 'Produits',
       icon: Package,
       key: 'products',
       items: [
-        { path: '/dashboard/products', label: 'Liste des produits', icon: Package }, // Changé ici
-        { path: '/dashboard/Listproduits', label: 'Nouveau produit', icon: PackagePlus }, // Ajoutez cette route dans App.jsx si nécessaire
+        { path: '/dashboard/products', label: 'Nouveau produit', icon: Package }, // Changé ici
+        { path: '/dashboard/Listproduits', label: 'Liste des produits', icon: PackagePlus }, // Ajoutez cette route dans App.jsx si nécessaire
       ]
     },
     {
@@ -79,8 +80,14 @@ function Sidebar({ isOpen }) {
       key: 'quotes',
       items: [
         { path: '/dashboard/quotes', label: 'Liste des devis', icon: FileText }, // Changé ici
-        { path: '/dashboard/nouveaudevis', label: 'Nouveau devis', icon: FilePlus }, // Ajoutez cette route dans App.jsx si nécessaire
+        //{ path: '/dashboard/nouveaudevis', label: 'Nouveau devis', icon: FilePlus },  Ajoutez cette route dans App.jsx si nécessaire
       ]
+    },
+    {
+      type: 'link',
+      path: '/dashboard/CommandesOnline',
+      label: 'Commande',
+      icon: ShoppingCart,
     },
     {
       type: 'submenu',

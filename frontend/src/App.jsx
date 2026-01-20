@@ -16,6 +16,7 @@
 import Nouveaucontact from './pages/Nouveaucontact'
 import Listeinvoices from './pages/Listeinvoices'
 import Listproduits from './pages/Listproduits'
+import CommandesOnline from './pages/CommandesOnline'
 
   function ProtectedRoute({ children }) {
     const { user, loading } = useAuth()
@@ -33,6 +34,7 @@ import Listproduits from './pages/Listproduits'
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/commande" element={<Commande />} />
+        
         <Route
           path="/dashboard"
           element={
@@ -53,6 +55,7 @@ import Listproduits from './pages/Listproduits'
           <Route path="nouveaucontact"element={<Nouveaucontact/>}/>
           <Route path="Listeinvoices" element={<Listeinvoices/>}/>
           <Route path="Listproduits" element={<Listproduits/>}/>
+          <Route path="CommandesOnline" element={<CommandesOnline/>}/>
           
         </Route>
         {/* Redirection pour les utilisateurs connectés qui visitent la page d'accueil */}

@@ -9,12 +9,7 @@ import { ProductsModule } from './products/products.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { DashboardModule } from './dashboard/dashboard.module';
-import { User } from './users/entities/user.entity';
-import { Client } from './clients/entities/client.entity';
-import { Contact } from './contacts/entities/contact.entity';
-import { Product } from './products/entities/product.entity';
-import { Quote } from './quotes/entities/quote.entity';
-import { Invoice } from './invoices/entities/invoice.entity';
+import { entities } from './entities';
 
 @Module({
   imports: [
@@ -26,8 +21,11 @@ import { Invoice } from './invoices/entities/invoice.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Client, Contact, Product, Quote, Invoice],
+      entities: entities,
       synchronize: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV === 'development',
+      migrations: ['dist/migrations/*.js'],
+      migrationsRun: false,
     }),
     AuthModule,
     UsersModule,
