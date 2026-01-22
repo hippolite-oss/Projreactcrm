@@ -23,7 +23,6 @@ export class InvoiceItem {
   invoice: Invoice;
 
   @Column()
-  @Index()
   invoiceId: number;
 
   @ManyToOne(() => Product, (product) => product.invoiceItems, { nullable: true })
@@ -31,7 +30,6 @@ export class InvoiceItem {
   product: Product;
 
   @Column({ nullable: true })
-  @Index()
   productId: number;
 
   @Column({ length: 255 })

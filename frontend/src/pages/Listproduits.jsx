@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import './ListProduits.css';
 
 const ListProduits = () => {
@@ -22,15 +23,11 @@ const ListProduits = () => {
   const chargerProduits = async () => {
     setIsLoading(true);
     try {
-      // Remplacez cette URL par celle de votre API backend
-      const response = await fetch('http://localhost:5000/api/produits');
+      const response = await api.get('/api/products');
       
-      if (response.ok) {
-        const data = await response.json();
-        setProduits(data.produits || []);
+      if (response.status === 200) {
+        setProduits(response.data || []);
         setErreur('');
-      } else {
-        setErreur('Erreur lors du chargement des produits');
       }
     } catch (error) {
       console.error('Erreur:', error);

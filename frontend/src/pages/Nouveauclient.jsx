@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './Nouveauclient.css';
 
 const Nouveauclient = ({ onClientAdded, onClose }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -59,21 +62,8 @@ const Nouveauclient = ({ onClientAdded, onClose }) => {
     setIsSubmitting(true);
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/clients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'ajout du client');
-      }
-      
-      const newClient = await response.json();
+      const response = await api.post('/api/clients', formData);
+      const newClient = response.data;
       
       if (onClientAdded) {
         onClientAdded(newClient);
@@ -90,16 +80,18 @@ const Nouveauclient = ({ onClientAdded, onClose }) => {
         country: '',
       });
       
-      // Fermer le formulaire si onClose est fourni
+      // Fermer le formulaire si onClose est fourni, sinon rediriger
       if (onClose) {
         onClose();
+      } else {
+        navigate('/dashboard/clients');
       }
       
     } catch (error) {
       console.error('Erreur:', error);
       setErrors(prev => ({
         ...prev,
-        submit: 'Erreur lors de l\'ajout du client. Veuillez réessayer.'
+        submit: error.response?.data?.message || 'Erreur lors de l\'ajout du client. Veuillez réessayer.'
       }));
     } finally {
       setIsSubmitting(false);

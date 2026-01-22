@@ -32,7 +32,6 @@ export class Quote {
   id: number;
 
   @Column({ unique: true, length: 50 })
-  @Index()
   quoteNumber: string;
 
   @ManyToOne(() => Client, (client) => client.quotes, { eager: true })
@@ -40,7 +39,6 @@ export class Quote {
   client: Client;
 
   @Column()
-  @Index()
   clientId: number;
 
   @Column({ 
@@ -96,7 +94,6 @@ export class Quote {
     enum: QuoteStatus,
     default: QuoteStatus.DRAFT,
   })
-  @Index()
   status: QuoteStatus;
 
   @Column({ type: 'date', nullable: true })

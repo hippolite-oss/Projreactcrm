@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 
 async function initUser() {
   const dataSource = new DataSource({
@@ -36,7 +36,7 @@ async function initUser() {
     password: hashedPassword,
     firstName: 'Admin',
     lastName: 'CRM',
-    role: 'admin',
+    role: UserRole.ADMIN,
   });
 
   await userRepository.save(user);

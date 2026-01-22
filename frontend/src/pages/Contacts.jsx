@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import './Contacts.css';
 
 const Contact = () => {
@@ -62,17 +63,24 @@ const Contact = () => {
     { id: 8, firstName: 'Nicolas', lastName: 'Dubois', email: 'nicolas.dubois@example.com', phone: '+33 1 90 12 34 56', company: 'GlobalSolutions', jobTitle: 'Analyste Data', status: 'customer', lastContact: '2023-09-30' }
   ];
 
-  // Charger les contacts (simulation API)
-  useEffect(() => {
-    const loadContacts = () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setContacts(demoContacts);
-        setFilteredContacts(demoContacts);
-        setIsLoading(false);
-      }, 800);
-    };
+  // Charger les contacts depuis l'API
+  const loadContacts = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.get('/api/contacts');
+      setContacts(response.data || []);
+      setFilteredContacts(response.data || []);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Erreur:', error);
+      // Fallback sur données de démonstration
+      setContacts(demoContacts);
+      setFilteredContacts(demoContacts);
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadContacts();
   }, []);
 
@@ -154,27 +162,32 @@ const Contact = () => {
     setShowDeleteModal(true);
   };
 
-  const deleteContact = () => {
+  const deleteContact = async () => {
     if (contactToDelete) {
-      const updatedContacts = contacts.filter(contact => contact.id !== contactToDelete);
-      setContacts(updatedContacts);
-      setShowDeleteModal(false);
-      setContactToDelete(null);
+      try {
+        await api.delete(`/api/contacts/${contactToDelete}`);
+        const updatedContacts = contacts.filter(contact => contact.id !== contactToDelete);
+        setContacts(updatedContacts);
+        setShowDeleteModal(false);
+        setContactToDelete(null);
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression du contact');
+      }
     }
   };
 
   // Gestion de l'ajout
-  const handleAddContact = () => {
-    const newId = Math.max(...contacts.map(c => c.id)) + 1;
-    const contactToAdd = {
-      ...newContact,
-      id: newId,
-      lastContact: new Date().toISOString().split('T')[0]
-    };
-    
-    setContacts([...contacts, contactToAdd]);
-    setShowAddModal(false);
-    resetNewContactForm();
+  const handleAddContact = async () => {
+    try {
+      const response = await api.post('/api/contacts', newContact);
+      setContacts([...contacts, response.data]);
+      setShowAddModal(false);
+      resetNewContactForm();
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de l\'ajout du contact');
+    }
   };
 
   const resetNewContactForm = () => {

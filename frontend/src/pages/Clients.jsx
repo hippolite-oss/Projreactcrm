@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import api from '../services/api';
 import './Clients.css';
 import Nouveauclient from './Nouveauclient';
 
@@ -25,19 +26,8 @@ const Client = () => {
   const fetchClients = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/clients', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors du chargement des clients');
-      }
-      
-      const data = await response.json();
-      setClients(data);
+      const response = await api.get('/api/clients');
+      setClients(response.data);
       setError(null);
     } catch (error) {
       console.error('Erreur:', error);
@@ -96,19 +86,8 @@ const Client = () => {
   // Gérer la suppression d'un client
   const handleDeleteClient = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/clients/${selectedClient._id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors de la suppression');
-      }
-      
-      setClients(prev => prev.filter(client => client._id !== selectedClient._id));
+      await api.delete(`/api/clients/${selectedClient.id}`);
+      setClients(prev => prev.filter(client => client.id !== selectedClient.id));
       setShowDeleteModal(false);
       setSelectedClient(null);
     } catch (error) {
@@ -291,7 +270,7 @@ const Client = () => {
               </thead>
               <tbody>
                 {paginatedClients.map(client => (
-                  <tr key={client._id}>
+                  <tr key={client.id}>
                     <td className="client-name">
                       <div className="avatar">
                         {client.name?.charAt(0).toUpperCase() || 'C'}

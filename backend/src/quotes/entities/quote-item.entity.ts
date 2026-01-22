@@ -23,7 +23,6 @@ export class QuoteItem {
   quote: Quote;
 
   @Column()
-  @Index()
   quoteId: number;
 
   @ManyToOne(() => Product, (product) => product.quoteItems, { nullable: true })
@@ -31,7 +30,6 @@ export class QuoteItem {
   product: Product;
 
   @Column({ nullable: true })
-  @Index()
   productId: number;
 
   @Column({ length: 255 })

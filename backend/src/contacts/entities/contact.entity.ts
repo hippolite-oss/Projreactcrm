@@ -24,7 +24,6 @@ export class Contact {
   lastName: string;
 
   @Column({ nullable: true, length: 255 })
-  @Index()
   email: string;
 
   @Column({ nullable: true, length: 20 })
@@ -45,13 +44,12 @@ export class Contact {
   // Relations
   @ManyToOne(() => Client, (client) => client.contacts, { 
     onDelete: 'CASCADE',
-    nullable: false 
+    nullable: true 
   })
   @JoinColumn({ name: 'clientId' })
   client: Client;
 
-  @Column()
-  @Index()
+  @Column({ nullable: true })
   clientId: number;
 
   @CreateDateColumn()

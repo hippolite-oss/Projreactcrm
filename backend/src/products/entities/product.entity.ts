@@ -27,7 +27,6 @@ export class Product {
   id: number;
 
   @Column({ length: 255 })
-  @Index()
   name: string;
 
   @Column({ type: 'text', nullable: true })
@@ -64,7 +63,6 @@ export class Product {
   minStockLevel: number; // Seuil d'alerte stock
 
   @Column({ default: true })
-  @Index()
   active: boolean;
 
   // Relations

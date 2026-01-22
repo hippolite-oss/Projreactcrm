@@ -34,7 +34,6 @@ export class Invoice {
   id: number;
 
   @Column({ unique: true, length: 50 })
-  @Index()
   invoiceNumber: string;
 
   @ManyToOne(() => Client, (client) => client.invoices, { eager: true })
@@ -42,7 +41,6 @@ export class Invoice {
   client: Client;
 
   @Column()
-  @Index()
   clientId: number;
 
   @Column({ 
@@ -110,11 +108,9 @@ export class Invoice {
     enum: InvoiceStatus,
     default: InvoiceStatus.DRAFT,
   })
-  @Index()
   status: InvoiceStatus;
 
   @Column({ type: 'date', nullable: true })
-  @Index()
   dueDate: Date;
 
   @Column({ type: 'date', nullable: true })

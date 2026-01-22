@@ -9,6 +9,7 @@ import { ProductsModule } from './products/products.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { CommandesOnlineModule } from './commandes-online/commandes-online.module';
 import { entities } from './entities';
 
 @Module({
@@ -35,6 +36,7 @@ import { entities } from './entities';
     QuotesModule,
     InvoicesModule,
     DashboardModule,
+    CommandesOnlineModule,
   ],
 })
 export class AppModule {}

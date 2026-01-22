@@ -1,5 +1,10 @@
   import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
   import { AuthProvider, useAuth } from './contexts/AuthContext'
+  import { NotificationProvider } from './contexts/NotificationContext'
+  import './utils/testCommandes' // Import temporaire pour debug
+  import './utils/verificationSynchronisation' // Script de vérification
+  import './utils/testAuthentification' // Script de test authentification
+  import './utils/testConfiguration' // Script de test configuration
   import Login from './pages/Login'
   import Dashboard from './pages/Dashboard'
   import Clients from './pages/Clients'
@@ -12,6 +17,7 @@
   import Layout from './components/Layout'
   import Nouveauclient from './pages/Nouveauclient'
   import Commande from './pages/Commande'
+  import NouvelleCommande from './pages/NouvelleCommande'
   import Home from './pages/Home'
 import Nouveaucontact from './pages/Nouveaucontact'
 import Listeinvoices from './pages/Listeinvoices'
@@ -33,7 +39,8 @@ import CommandesOnline from './pages/CommandesOnline'
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/commande" element={<Commande />} />
+        <Route path="/commande" element={<NouvelleCommande />} />
+        <Route path="/nouvelle-commande" element={<NouvelleCommande />} />
         
         <Route
           path="/dashboard"
@@ -50,6 +57,7 @@ import CommandesOnline from './pages/CommandesOnline'
           <Route path="products" element={<Products />} />
           <Route path="quotes" element={<Quotes />} />
           <Route path="invoices" element={<Invoices />} />
+          <Route path="commandes" element={<Commande />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="nouveaucontact"element={<Nouveaucontact/>}/>
@@ -72,7 +80,9 @@ import CommandesOnline from './pages/CommandesOnline'
     return (
       <Router>
         <AuthProvider>
-          <AppRoutes />
+          <NotificationProvider>
+            <AppRoutes />
+          </NotificationProvider>
         </AuthProvider>
       </Router>
     )

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import api from '../services/api';
 import './Products.css';
 
 const Products = ({ onProductsAjoute }) => {
@@ -139,16 +140,13 @@ const Products = ({ onProductsAjoute }) => {
     formDataToSend.append('dateAjout', new Date().toISOString());
     
     try {
-      // Remplacez cette URL par celle de votre API backend
-      const response = await fetch('http://localhost:5000/api/Productss', {
-        method: 'POST',
-        body: formDataToSend,
-        // Les en-têtes ne sont pas nécessaires avec FormData, le navigateur les définit automatiquement
+      const response = await api.post('/api/products', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       
-      const data = await response.json();
-      
-      if (response.ok) {
+      if (response.status === 201) {
         setMessage('Products ajouté avec succès!');
         
         // Réinitialiser le formulaire
@@ -166,13 +164,11 @@ const Products = ({ onProductsAjoute }) => {
         
         // Appeler la fonction de rappel pour mettre à jour la liste des Productss
         if (onProductsAjoute) {
-          onProductsAjoute(data.Products);
+          onProductsAjoute(response.data);
         }
-      } else {
-        setMessage(`Erreur: ${data.message || 'Erreur lors de l\'ajout du Products'}`);
       }
     } catch (error) {
-      setMessage('Erreur de connexion au serveur. Veuillez réessayer.');
+      setMessage(error.response?.data?.message || 'Erreur lors de l\'ajout du Products');
       console.error('Erreur:', error);
     } finally {
       setIsLoading(false);

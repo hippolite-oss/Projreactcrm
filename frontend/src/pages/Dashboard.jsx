@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 import { 
   Users, Package, FileText, Receipt, TrendingUp, DollarSign, 
   UserPlus, Calendar, BarChart3, Target, Activity, Download,
@@ -48,75 +48,114 @@ function Dashboard() {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    fetchDashboardData()
-  }, [timeRange])
-
+  // Charger les données du dashboard
   const fetchDashboardData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       
-      // Simulation de données avec votre thème
-      const mockClientData = [
-        { month: 'Jan', clients: 120, newClients: 15 },
-        { month: 'Fév', clients: 135, newClients: 18 },
-        { month: 'Mar', clients: 142, newClients: 12 },
-        { month: 'Avr', clients: 158, newClients: 20 },
-        { month: 'Mai', clients: 170, newClients: 16 },
-        { month: 'Juin', clients: 185, newClients: 22 },
-        { month: 'Juil', clients: 195, newClients: 18 }
-      ]
-
-      const mockRevenueData = [
-        { month: 'Jan', revenue: 45000, target: 50000 },
-        { month: 'Fév', revenue: 52000, target: 50000 },
-        { month: 'Mar', revenue: 48000, target: 55000 },
-        { month: 'Avr', revenue: 61000, target: 60000 },
-        { month: 'Mai', revenue: 58000, target: 60000 },
-        { month: 'Juin', revenue: 72000, target: 65000 },
-        { month: 'Juil', revenue: 68000, target: 70000 }
-      ]
-
-      const mockStatusData = [
-        { name: 'Actifs', value: 156, color: '#10b981' },
-        { name: 'Potentiels', value: 78, color: '#f59e0b' },
-        { name: 'Inactifs', value: 42, color: '#ef4444' },
-        { name: 'Suspendus', value: 15, color: '#6b7280' }
-      ]
-
-      const mockRecentActivities = [
-        { id: 1, user: 'Admin', action: 'a ajouté un nouveau client', time: '10:30', icon: 'plus' },
-        { id: 2, user: 'Vendeur1', action: 'a effectué une vente de €2,500', time: '11:15', icon: 'cart' },
-        { id: 3, user: 'Admin', action: 'a créé une facture #INV-2456', time: '13:45', icon: 'edit' },
-        { id: 4, user: 'System', action: 'sauvegarde automatique effectuée', time: '14:00', icon: 'save' },
-        { id: 5, user: 'Vendeur2', action: 'a créé un nouveau contact', time: '15:30', icon: 'user' }
-      ]
-
-      // Simuler un appel API
-      setTimeout(() => {
+      // Appel API pour les statistiques
+      const statsResponse = await api.get('/api/dashboard/stats');
+      
+      if (statsResponse.data) {
         setStats({
-          clients: 195,
-          products: 87,
-          quotes: 42,
-          invoices: 156,
-          revenue: 395000,
-          growth: 12.5,
-          newClients: 22,
-          conversionRate: 68
-        })
-        
-        setClientData(mockClientData)
-        setRevenueData(mockRevenueData)
-        setStatusData(mockStatusData)
-        setRecentActivities(mockRecentActivities)
-        setLoading(false)
-      }, 1000)
-
+          clients: statsResponse.data.clients || 0,
+          products: statsResponse.data.products || 0,
+          quotes: statsResponse.data.quotes || 0,
+          invoices: statsResponse.data.invoices || 0,
+          revenue: statsResponse.data.revenue || 0,
+          growth: statsResponse.data.growth || 0,
+          newClients: statsResponse.data.newClients || 0,
+          conversionRate: statsResponse.data.conversionRate || 0
+        });
+      }
+      
+      // Appels API pour les graphiques (si les endpoints existent)
+      try {
+        const clientsResponse = await api.get('/api/dashboard/clients-growth');
+        if (clientsResponse.data) {
+          setClientData(clientsResponse.data);
+        }
+      } catch (error) {
+        console.log('Endpoint clients-growth non disponible');
+      }
+      
+      try {
+        const revenueResponse = await api.get('/api/dashboard/revenue');
+        if (revenueResponse.data) {
+          setRevenueData(revenueResponse.data);
+        }
+      } catch (error) {
+        console.log('Endpoint revenue non disponible');
+      }
+      
+      try {
+        const statusResponse = await api.get('/api/dashboard/client-status');
+        if (statusResponse.data) {
+          setStatusData(statusResponse.data);
+        }
+      } catch (error) {
+        console.log('Endpoint client-status non disponible');
+      }
+      
+      setLoading(false);
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error)
-      setLoading(false)
+      console.error('Erreur lors du chargement des données:', error);
+      setLoading(false);
+      // Fallback sur données simulées
+      loadMockData();
     }
-  }
+  };
+
+  // Données simulées en cas d'erreur API
+  const loadMockData = () => {
+    setStats({
+      clients: 195,
+      products: 87,
+      quotes: 42,
+      invoices: 156,
+      revenue: 395000,
+      growth: 12.5,
+      newClients: 22,
+      conversionRate: 68
+    });
+    
+    setClientData([
+      { month: 'Jan', clients: 120, newClients: 15 },
+      { month: 'Fév', clients: 135, newClients: 18 },
+      { month: 'Mar', clients: 142, newClients: 12 },
+      { month: 'Avr', clients: 158, newClients: 20 },
+      { month: 'Mai', clients: 170, newClients: 16 },
+      { month: 'Juin', clients: 185, newClients: 22 }
+    ]);
+    
+    setRevenueData([
+      { month: 'Jan', revenue: 45000, target: 50000 },
+      { month: 'Fév', revenue: 52000, target: 50000 },
+      { month: 'Mar', revenue: 48000, target: 55000 },
+      { month: 'Avr', revenue: 61000, target: 60000 },
+      { month: 'Mai', revenue: 58000, target: 60000 },
+      { month: 'Juin', revenue: 72000, target: 65000 }
+    ]);
+    
+    setStatusData([
+      { name: 'Actifs', value: 156, color: '#10b981' },
+      { name: 'Potentiels', value: 78, color: '#f59e0b' },
+      { name: 'Inactifs', value: 42, color: '#ef4444' },
+      { name: 'Suspendus', value: 15, color: '#6b7280' }
+    ]);
+
+    setRecentActivities([
+      { id: 1, user: 'Admin', action: 'a ajouté un nouveau client', time: '10:30', icon: 'plus' },
+      { id: 2, user: 'Vendeur1', action: 'a effectué une vente de €2,500', time: '11:15', icon: 'cart' },
+      { id: 3, user: 'Admin', action: 'a créé une facture #INV-2456', time: '13:45', icon: 'edit' },
+      { id: 4, user: 'System', action: 'sauvegarde automatique effectuée', time: '14:00', icon: 'save' },
+      { id: 5, user: 'Vendeur2', action: 'a créé un nouveau contact', time: '15:30', icon: 'user' }
+    ]);
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [timeRange]);
 
   // Données supplémentaires pour votre thème
   const notificationsMock = [

@@ -85,8 +85,8 @@ function Sidebar({ isOpen }) {
     },
     {
       type: 'link',
-      path: '/dashboard/CommandesOnline',
-      label: 'Commande',
+      path: '/dashboard/commandes',
+      label: 'Mes commandes',
       icon: ShoppingCart,
     },
     {

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../services/api';
+import { useNotifications } from '../contexts/NotificationContext';
 import { 
   Search, Filter, Loader2, Eye, CheckCircle, XCircle, AlertCircle,
   Clock, Calendar, User, Phone, Mail, MapPin, MessageSquare, ArrowRight , ShoppingBag, X} from 'lucide-react';
 
 const CommandesOnline = () => {
+  const { marquerCommandeLue, rafraichirNotifications } = useNotifications();
   const [commandes, setCommandes] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 15, total: 0, pages: 1 });
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,7 @@ const CommandesOnline = () => {
   }, [search, statutFilter, pagination.page]);
 
   const fetchCommandes = async (page = 1) => {
+    console.log('📡 CommandesOnline - Récupération des commandes, page:', page);
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -26,13 +30,23 @@ const CommandesOnline = () => {
       if (search) params.append('search', search);
       if (statutFilter) params.append('statut', statutFilter);
 
-      const res = await Axios.get('/api/commande-online', { params });
+      console.log('📡 Paramètres API (Admin):', Object.fromEntries(params));
+
+      const res = await api.get('/api/commande-online', { params });
+      console.log('📦 Réponse API (Admin):', res.data);
+      
       if (res.data.success) {
-        setCommandes(res.data.data || []);
+        const commandesData = res.data.data || [];
+        console.log('✅ Commandes récupérées (Admin):', commandesData.length, 'commandes');
+        setCommandes(commandesData);
         setPagination(res.data.pagination || { page: 1, limit: 15, total: 0, pages: 1 });
+      } else {
+        console.warn('⚠️ Réponse API sans succès (Admin):', res.data);
+        setCommandes([]);
       }
     } catch (error) {
-      console.error('Erreur chargement commandes:', error);
+      console.error('❌ Erreur chargement commandes (Admin):', error);
+      setCommandes([]);
     } finally {
       setLoading(false);
     }
@@ -40,19 +54,23 @@ const CommandesOnline = () => {
 
   const handleMarquerLu = async (id) => {
     if (!window.confirm('Marquer cette commande comme lue ?')) return;
-    try {
-      await Axios.put(`/api/commande-online/${id}/lu`);
+    
+    const success = await marquerCommandeLue(id);
+    if (success) {
+      // Recharger la liste des commandes
       fetchCommandes(pagination.page);
-    } catch (error) {
-      alert(error.response?.data?.message || 'Erreur lors du marquage');
+    } else {
+      alert('Erreur lors du marquage');
     }
   };
 
   const handleAnnuler = async (id) => {
     if (!window.confirm('Annuler cette commande ?')) return;
     try {
-      await Axios.put(`/api/commande-online/${id}/annule`); // Tu peux ajouter cette route si besoin
+      await api.put(`/api/commande-online/${id}/cancel`);
       fetchCommandes(pagination.page);
+      // Rafraîchir les notifications après annulation
+      rafraichirNotifications();
     } catch (error) {
       alert(error.response?.data?.message || 'Erreur annulation');
     }
@@ -232,14 +250,14 @@ const CommandesOnline = () => {
               <div className="flex gap-3">
                 <button
                   disabled={pagination.page === 1}
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  onClick={() => fetchCommandes(Math.max(1, pagination.page - 1))}
                   className="px-5 py-2 rounded-xl bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-200 dark:hover:bg-purple-800/50 disabled:opacity-50 transition"
                 >
                   Précédent
                 </button>
                 <button
                   disabled={pagination.page === pagination.pages}
-                  onClick={() => setPage(p => p + 1)}
+                  onClick={() => fetchCommandes(pagination.page + 1)}
                   className="px-5 py-2 rounded-xl bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-200 dark:hover:bg-purple-800/50 disabled:opacity-50 transition"
                 >
                   Suivant

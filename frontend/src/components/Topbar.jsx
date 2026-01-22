@@ -1,17 +1,27 @@
 import { useState } from 'react'
 import { Menu, Bell, User, LogOut, Settings } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useNotifications } from '../contexts/NotificationContext'
 import { useNavigate } from 'react-router-dom'
 import './Topbar.css'
 
 function Topbar({ onMenuClick }) {
   const { user, logout } = useAuth()
+  const { notifications } = useNotifications()
   const navigate = useNavigate()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  // Debug: Log des notifications
+  console.log('🔔 Topbar - Notifications:', notifications);
 
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const handleNotificationClick = () => {
+    console.log('🔔 Topbar - Clic sur notifications - Redirection vers Mes commandes');
+    navigate("/dashboard/commandes")
   }
 
   return (
@@ -25,10 +35,18 @@ function Topbar({ onMenuClick }) {
         </div>
       </div>
       <div className="topbar-right">
-        <button className="notification-button"onClick={() => navigate("/dashboard/CommandesOnline")} >
+        <button 
+          className="notification-button" 
+          onClick={handleNotificationClick}
+          title={`${notifications.commandesNonLues} nouvelle(s) commande(s)`}
+        >
           <Bell size={20} />
-          <span className="notification-badge">3</span>
-        </buttoncd>
+          {notifications.commandesNonLues > 0 && (
+            <span className="notification-badge">
+              {notifications.commandesNonLues > 99 ? '99+' : notifications.commandesNonLues}
+            </span>
+          )}
+        </button>
         <div className="user-menu">
           <button
             className="user-button"

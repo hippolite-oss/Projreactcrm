@@ -20,7 +20,6 @@ export class User {
   id: number;
 
   @Column({ unique: true, length: 255 })
-  @Index()
   email: string;
 
   @Column({ length: 255, select: false }) // select: false pour ne pas exposer le mot de passe par défaut
