@@ -44,24 +44,30 @@ function Sidebar({ isOpen }) {
       icon: LayoutDashboard,
     },
     {
-      type: 'submenu',
+      type: 'link',
       label: 'Clients',
-      icon: Users,
+      icon: Contact2,
       key: 'clients',
-      items: [
-        { path: '/dashboard/clients', label: 'Liste des clients', icon: Users }, // Changé ici
-        { path: '/dashboard/nouveauclient', label: 'Nouveau client', icon: UserPlus }, // Changé ici
-      ]
+      
+         path: '/dashboard/clients', label: 'Clients', icon: Users , // Changé ici
+       // { path: '/dashboard/nouveauclient', label: 'Nouveau client', icon: UserPlus }, // Changé ici
+      
     },
+   // {
+     // type: 'submenu',
+     // label: 'Contacts',
+     // icon: Contact,
+     // key: 'contacts',
+     // items: [
+       // { path: '/dashboard/contacts', label: 'Liste des contacts', icon: Contact }, // Changé ici
+       // { path: '/dashboard/nouveaucontact', label: 'Nouveau contact', icon: Contact2 }, // Ajoutez cette route dans App.jsx si nécessaire
+      //]
+    //},
     {
-      type: 'submenu',
+      type: 'link',
+      path: '/dashboard/prospects',
       label: 'Contacts',
-      icon: Contact,
-      key: 'contacts',
-      items: [
-        { path: '/dashboard/contacts', label: 'Liste des contacts', icon: Contact }, // Changé ici
-        { path: '/dashboard/nouveaucontact', label: 'Nouveau contact', icon: Contact2 }, // Ajoutez cette route dans App.jsx si nécessaire
-      ]
+      icon: Users,
     },
     {
       type: 'submenu',
@@ -83,24 +89,19 @@ function Sidebar({ isOpen }) {
         //{ path: '/dashboard/nouveaudevis', label: 'Nouveau devis', icon: FilePlus },  Ajoutez cette route dans App.jsx si nécessaire
       ]
     },
-    {
+   /* {
       type: 'link',
       path: '/dashboard/commandes',
       label: 'Mes commandes',
       icon: ShoppingCart,
-    },
+    },**/
     {
       type: 'link',
       path: '/dashboard/CommandesOnline',
-      label: 'Commandes en ligne',
+      label: 'Mes commandes en ligne',
       icon: ShoppingCart,
     },
-    {
-      type: 'link',
-      path: '/dashboard/prospects',
-      label: 'Prospects',
-      icon: Users,
-    },
+    
     {
       type: 'submenu',
       label: 'Factures',

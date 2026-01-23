@@ -63,7 +63,7 @@ function Topbar({ onMenuClick }) {
                   <div 
                     className="notification-item"
                     onClick={() => {
-                      navigate("/dashboard/commandes")
+                      navigate("/dashboard/CommandesOnline")
                       setNotificationMenuOpen(false)
                     }}
                   >

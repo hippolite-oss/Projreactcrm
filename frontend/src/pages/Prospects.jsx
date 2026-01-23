@@ -202,7 +202,7 @@ const Prospects = () => {
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Prospects
+                Contacts
               </h1>
               <p className="text-lg text-purple-700 dark:text-purple-300 mt-2">
                 Gestion des demandes de démonstration
