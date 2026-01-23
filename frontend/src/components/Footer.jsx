@@ -1,13 +1,13 @@
 // src/components/Footer.jsx
 import { useState, useEffect } from 'react';
-
+import api from '../services/api';
 
 const Footer = () => {
   const [parametres, setParametres] = useState(null);
 
   const fetchParametres = async () => {
     try {
-      const res = await Axios.get('/api/parametres');
+      const res = await api.get('/api/parametres');
       if (res.data.success) {
         setParametres(res.data.data);
       }

@@ -8,18 +8,42 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('🔍 AuthContext: Initialisation...');
     const token = localStorage.getItem('token')
+    console.log('🔑 Token trouvé:', token ? 'Oui' : 'Non');
+    
     if (token) {
+      // Vérifier si le token semble valide (format JWT basique)
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.log('❌ Token malformé, suppression...');
+        localStorage.removeItem('token');
+        setLoading(false);
+        return;
+      }
+
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      console.log('📡 Vérification du token avec /api/auth/me...');
 
       api.get('/api/auth/me')
-        .then(res => setUser(res.data))
-        .catch(() => {
-          localStorage.removeItem('token')
-          delete api.defaults.headers.common['Authorization']
+        .then(res => {
+          console.log('✅ Token valide, utilisateur:', res.data);
+          setUser(res.data);
         })
-        .finally(() => setLoading(false))
+        .catch(err => {
+          console.log('❌ Token invalide:', err.response?.status, err.response?.data);
+          console.log('🧹 Nettoyage du localStorage...');
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          delete api.defaults.headers.common['Authorization']
+          setUser(null);
+        })
+        .finally(() => {
+          console.log('🏁 Chargement terminé');
+          setLoading(false);
+        })
     } else {
+      console.log('🏁 Pas de token, chargement terminé');
       setLoading(false)
     }
   }, [])

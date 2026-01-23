@@ -9,10 +9,12 @@ import {
   Query,
   UseGuards,
   Put,
+  Request,
 } from '@nestjs/common';
 import { CommandesOnlineService } from './commandes-online.service';
 import { CreateCommandeOnlineDto } from './dto/create-commande-online.dto';
 import { UpdateCommandeOnlineDto } from './dto/update-commande-online.dto';
+import { TraiterCommandeDto, AnnulerCommandeDto } from './dto/traiter-commande.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('commande-online')
@@ -55,14 +57,55 @@ export class CommandesOnlineController {
 
   @Put(':id/mark-as-read')
   @UseGuards(JwtAuthGuard)
-  marquerLu(@Param('id') id: string) {
-    return this.commandesOnlineService.marquerLu(+id);
+  marquerLu(@Param('id') id: string, @Request() req) {
+    const adminEmail = req.user?.email;
+    return this.commandesOnlineService.marquerLu(+id, adminEmail);
   }
 
+  @Put(':id/traiter')
+  @UseGuards(JwtAuthGuard)
+  traiterCommande(
+    @Param('id') id: string, 
+    @Body() traiterDto: TraiterCommandeDto,
+    @Request() req
+  ) {
+    const adminEmail = req.user?.email;
+    return this.commandesOnlineService.traiterCommande(+id, traiterDto, adminEmail);
+  }
+
+  @Put(':id/annuler')
+  @UseGuards(JwtAuthGuard)
+  annulerCommande(
+    @Param('id') id: string, 
+    @Body() annulerDto: AnnulerCommandeDto,
+    @Request() req
+  ) {
+    const adminEmail = req.user?.email;
+    return this.commandesOnlineService.annulerCommande(+id, annulerDto, adminEmail);
+  }
+
+  @Put(':id/envoyer-email-reception')
+  @UseGuards(JwtAuthGuard)
+  envoyerEmailReception(@Param('id') id: string) {
+    return this.commandesOnlineService.envoyerEmailReception(+id);
+  }
+
+  @Put(':id/renvoyer-email')
+  @UseGuards(JwtAuthGuard)
+  renvoyerEmailTraitement(@Param('id') id: string) {
+    return this.commandesOnlineService.renvoyerEmailTraitement(+id);
+  }
+
+  // Ancienne méthode pour compatibilité
   @Put(':id/cancel')
   @UseGuards(JwtAuthGuard)
-  annuler(@Param('id') id: string) {
-    return this.commandesOnlineService.annuler(+id);
+  annuler(@Param('id') id: string, @Request() req) {
+    const adminEmail = req.user?.email;
+    const annulerDto: AnnulerCommandeDto = {
+      raison_annulation: 'Annulation via interface admin',
+      envoyer_email: true
+    };
+    return this.commandesOnlineService.annulerCommande(+id, annulerDto, adminEmail);
   }
 
   @Delete(':id')

@@ -11,5 +11,20 @@ export class DashboardController {
   getStats() {
     return this.dashboardService.getStats();
   }
+
+  @Get('clients-growth')
+  getClientsGrowth() {
+    return this.dashboardService.getClientsGrowth();
+  }
+
+  @Get('revenue')
+  getRevenue() {
+    return this.dashboardService.getRevenue();
+  }
+
+  @Get('client-status')
+  getClientStatus() {
+    return this.dashboardService.getClientStatus();
+  }
 }
 

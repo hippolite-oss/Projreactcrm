@@ -10,6 +10,9 @@ import { QuotesModule } from './quotes/quotes.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { CommandesOnlineModule } from './commandes-online/commandes-online.module';
+import { ProspectsModule } from './prospects/prospects.module';
+import { EmailModule } from './email/email.module';
+import { ParametresModule } from './parametres/parametres.module';
 import { entities } from './entities';
 
 @Module({
@@ -37,6 +40,9 @@ import { entities } from './entities';
     InvoicesModule,
     DashboardModule,
     CommandesOnlineModule,
+    ProspectsModule,
+    EmailModule,
+    ParametresModule,
   ],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
@@ -14,8 +14,36 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Rediriger si l'utilisateur est déjà connecté
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('👤 Utilisateur déjà connecté, redirection vers dashboard');
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  // Afficher un loader pendant la vérification de l'authentification
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Vérification de l'authentification...
+      </div>
+    );
+  }
+
+  // Ne pas afficher la page de login si l'utilisateur est connecté
+  if (user) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

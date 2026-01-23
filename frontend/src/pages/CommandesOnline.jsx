@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
+import emailService from '../services/emailService';
 import { useNotifications } from '../contexts/NotificationContext';
+import ModalTraitementCommande from '../components/ModalTraitementCommande';
+import ModalAnnulationCommande from '../components/ModalAnnulationCommande';
 import { 
-  Search, Filter, Loader2, Eye, CheckCircle, XCircle, AlertCircle,
-  Clock, Calendar, User, Phone, Mail, MapPin, MessageSquare, ArrowRight , ShoppingBag, X} from 'lucide-react';
+  Search, Loader2, Eye, CheckCircle, XCircle,
+  X, Settings, MailCheck, MailX, ShoppingBag, Mail
+} from 'lucide-react';
 
 const CommandesOnline = () => {
   const { marquerCommandeLue, rafraichirNotifications } = useNotifications();
@@ -15,6 +19,11 @@ const CommandesOnline = () => {
   const [statutFilter, setStatutFilter] = useState('');
   const [selectedCommande, setSelectedCommande] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  
+  // Nouveaux états pour les modals
+  const [showTraitementModal, setShowTraitementModal] = useState(false);
+  const [showAnnulationModal, setShowAnnulationModal] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchCommandes(1);
@@ -64,17 +73,114 @@ const CommandesOnline = () => {
     }
   };
 
-  const handleAnnuler = async (id) => {
-    if (!window.confirm('Annuler cette commande ?')) return;
+  // Gestionnaire pour envoyer l'email de réception avec EmailJS
+  const handleEnvoyerEmailReception = async (id) => {
+    if (!window.confirm('Envoyer un email de confirmation de réception au client ?')) return;
+    
     try {
-      await api.put(`/api/commande-online/${id}/cancel`);
-      fetchCommandes(pagination.page);
-      // Rafraîchir les notifications après annulation
-      rafraichirNotifications();
+      // D'abord, marquer la commande côté backend
+      const response = await api.put(`/api/commande-online/${id}/envoyer-email-reception`);
+      
+      if (response.data.success) {
+        // Récupérer les données de la commande pour l'email
+        const commande = response.data.commande || selectedCommande;
+        
+        if (commande && commande.email) {
+          console.log('📧 Envoi email via EmailJS pour:', commande.nom);
+          
+          // Envoyer l'email via EmailJS
+          const emailResult = await emailService.envoyerConfirmationReception(commande);
+          
+          if (emailResult.success) {
+            alert('Email de confirmation envoyé avec succès via EmailJS !');
+          } else {
+            alert(`Email marqué comme envoyé, mais erreur EmailJS: ${emailResult.message}`);
+          }
+        } else {
+          alert('Commande marquée comme notifiée (pas d\'email disponible)');
+        }
+        
+        // Recharger la liste dans tous les cas
+        fetchCommandes(pagination.page);
+      } else {
+        alert(response.data.message || 'Erreur lors de la préparation');
+      }
     } catch (error) {
-      alert(error.response?.data?.message || 'Erreur annulation');
+      console.error('❌ Erreur:', error);
+      alert(error.response?.data?.message || 'Erreur lors de l\'envoi de l\'email');
     }
   };
+
+  // Gestionnaires pour les modales de traitement et d'annulation
+  const handleTraiterCommande = async (id, data) => {
+    setActionLoading(true);
+    try {
+      const response = await api.put(`/api/commande-online/${id}/traiter`, data);
+      console.log('✅ Commande traitée:', response.data);
+      
+      // Fermer la modale et recharger les données
+      setShowTraitementModal(false);
+      setSelectedCommande(null);
+      fetchCommandes(pagination.page);
+      rafraichirNotifications();
+      
+      // Message de succès
+      const message = response.data.emailEnvoye 
+        ? 'Commande traitée avec succès. Email de confirmation envoyé au client.'
+        : 'Commande traitée avec succès.';
+      alert(message);
+      
+    } catch (error) {
+      console.error('❌ Erreur traitement:', error);
+      alert(error.response?.data?.message || 'Erreur lors du traitement');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAnnulerCommande = async (id, data) => {
+    setActionLoading(true);
+    try {
+      const response = await api.put(`/api/commande-online/${id}/annuler`, data);
+      console.log('✅ Commande annulée:', response.data);
+      
+      // Fermer la modale et recharger les données
+      setShowAnnulationModal(false);
+      setSelectedCommande(null);
+      fetchCommandes(pagination.page);
+      rafraichirNotifications();
+      
+      // Message de succès
+      const message = response.data.emailEnvoye 
+        ? 'Commande annulée. Email de notification envoyé au client.'
+        : 'Commande annulée avec succès.';
+      alert(message);
+      
+    } catch (error) {
+      console.error('❌ Erreur annulation:', error);
+      alert(error.response?.data?.message || 'Erreur lors de l\'annulation');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRenvoyerEmail = async (id) => {
+    if (!window.confirm('Renvoyer l\'email de traitement au client ?')) return;
+    
+    try {
+      const response = await api.put(`/api/commande-online/${id}/renvoyer-email`);
+      if (response.data.success) {
+        alert('Email renvoyé avec succès');
+        fetchCommandes(pagination.page);
+      } else {
+        alert(response.data.message || 'Erreur lors du renvoi');
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || 'Erreur lors du renvoi de l\'email');
+    }
+  };
+
+
 
   const getStatutBadge = (statut) => {
     const styles = {
@@ -187,9 +293,9 @@ const CommandesOnline = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-purple-100 dark:divide-purple-900/50">
-                  {commandes.map(cmd => (
+                  {commandes.map((cmd, index) => (
                     <motion.tr
-                      key={cmd._id}
+                      key={cmd.id || cmd._id || index}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="hover:bg-purple-50/50 dark:hover:bg-purple-950/30 transition-colors"
@@ -204,30 +310,79 @@ const CommandesOnline = () => {
                         {getStatutBadge(cmd.statut)}
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-2">
+                          {/* Bouton Voir détails */}
                           <button
                             onClick={() => {
                               setSelectedCommande(cmd);
                               setShowDetailModal(true);
                             }}
                             className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition"
+                            title="Voir les détails"
                           >
                             <Eye className="w-5 h-5" />
                           </button>
 
+                          {/* Bouton Envoyer email de réception (pour toutes les commandes avec email) */}
+                          {cmd.email && !cmd.email_reception_envoye && (
+                            <button
+                              onClick={() => handleEnvoyerEmailReception(cmd.id || cmd._id)}
+                              className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition"
+                              title="Envoyer email de confirmation de réception"
+                            >
+                              <Mail className="w-5 h-5" />
+                            </button>
+                          )}
+
+                          {/* Bouton Marquer comme lu (seulement pour statut "nouveau") */}
                           {cmd.statut === 'nouveau' && (
                             <button
-                              onClick={() => handleMarquerLu(cmd._id)}
+                              onClick={() => handleMarquerLu(cmd.id || cmd._id)}
                               className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition"
+                              title="Marquer comme lu"
                             >
                               <CheckCircle className="w-5 h-5" />
                             </button>
                           )}
 
+                          {/* Bouton Traiter (pour statuts "nouveau" et "lu") */}
+                          {(cmd.statut === 'nouveau' || cmd.statut === 'lu') && (
+                            <button
+                              onClick={() => {
+                                setSelectedCommande(cmd);
+                                setShowTraitementModal(true);
+                              }}
+                              className="p-2 text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition"
+                              title="Traiter la commande"
+                            >
+                              <Settings className="w-5 h-5" />
+                            </button>
+                          )}
+
+                          {/* Bouton Renvoyer email (pour commandes traitées avec email) */}
+                          {cmd.statut === 'traite' && cmd.email && (
+                            <button
+                              onClick={() => handleRenvoyerEmail(cmd.id || cmd._id)}
+                              className={`p-2 rounded-lg transition ${
+                                cmd.email_traitement_envoye 
+                                  ? 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30' 
+                                  : 'text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/30'
+                              }`}
+                              title={cmd.email_traitement_envoye ? 'Renvoyer l\'email' : 'Envoyer l\'email de traitement'}
+                            >
+                              {cmd.email_traitement_envoye ? <MailCheck className="w-5 h-5" /> : <MailX className="w-5 h-5" />}
+                            </button>
+                          )}
+
+                          {/* Bouton Annuler avec modale (pour commandes non annulées) */}
                           {cmd.statut !== 'annule' && (
                             <button
-                              onClick={() => handleAnnuler(cmd._id)}
+                              onClick={() => {
+                                setSelectedCommande(cmd);
+                                setShowAnnulationModal(true);
+                              }}
                               className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition"
+                              title="Annuler la commande"
                             >
                               <XCircle className="w-5 h-5" />
                             </button>
@@ -332,14 +487,72 @@ const CommandesOnline = () => {
                   </div>
                 )}
 
+                {selectedCommande.notes_admin && (
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Notes administrateur</p>
+                    <div className="bg-blue-50 dark:bg-blue-900/30 p-6 rounded-2xl mt-2 whitespace-pre-line text-lg leading-relaxed">
+                      {selectedCommande.notes_admin}
+                    </div>
+                  </div>
+                )}
+
                 <div className="pt-6 border-t border-gray-200 dark:border-zinc-800">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Statut</p>
                   <div className="mt-2">
                     {getStatutBadge(selectedCommande.statut)}
                   </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                    Créée le {formatDate(selectedCommande.date_creation)}
+                    Créée le {formatDate(selectedCommande.createdAt || selectedCommande.date_creation)}
                   </p>
+                  
+                  {/* Informations sur les emails */}
+                  {selectedCommande.email && (
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        {selectedCommande.email_reception_envoye ? (
+                          <MailCheck className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <MailX className="w-4 h-4 text-gray-400" />
+                        )}
+                        <span className={selectedCommande.email_reception_envoye ? 'text-green-600' : 'text-gray-500'}>
+                          Email de réception {selectedCommande.email_reception_envoye ? 'envoyé' : 'non envoyé'}
+                        </span>
+                        {selectedCommande.date_email_reception && (
+                          <span className="text-gray-400">
+                            le {formatDate(selectedCommande.date_email_reception)}
+                          </span>
+                        )}
+                        {/* Bouton pour envoyer l'email de réception depuis le modal */}
+                        {!selectedCommande.email_reception_envoye && (
+                          <button
+                            onClick={() => {
+                              handleEnvoyerEmailReception(selectedCommande.id || selectedCommande._id);
+                              setShowDetailModal(false);
+                            }}
+                            className="ml-2 px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition"
+                          >
+                            Envoyer
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-sm">
+                        {selectedCommande.email_traitement_envoye ? (
+                          <MailCheck className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <MailX className="w-4 h-4 text-gray-400" />
+                        )}
+                        <span className={selectedCommande.email_traitement_envoye ? 'text-green-600' : 'text-gray-500'}>
+                          Email de traitement {selectedCommande.email_traitement_envoye ? 'envoyé' : 'non envoyé'}
+                        </span>
+                        {selectedCommande.date_email_traitement && (
+                          <span className="text-gray-400">
+                            le {formatDate(selectedCommande.date_email_traitement)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -354,7 +567,7 @@ const CommandesOnline = () => {
                 {selectedCommande.statut === 'nouveau' && (
                   <button
                     onClick={() => {
-                      handleMarquerLu(selectedCommande._id);
+                      handleMarquerLu(selectedCommande.id || selectedCommande._id);
                       setShowDetailModal(false);
                     }}
                     className="flex-1 py-5 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-2xl font-bold text-xl shadow-xl transition flex items-center justify-center gap-3"
@@ -366,6 +579,32 @@ const CommandesOnline = () => {
               </div>
             </motion.div>
           </div>
+        )}
+
+        {/* Modal Traitement */}
+        {showTraitementModal && selectedCommande && (
+          <ModalTraitementCommande
+            commande={selectedCommande}
+            onClose={() => {
+              setShowTraitementModal(false);
+              setSelectedCommande(null);
+            }}
+            onTraiter={handleTraiterCommande}
+            loading={actionLoading}
+          />
+        )}
+
+        {/* Modal Annulation */}
+        {showAnnulationModal && selectedCommande && (
+          <ModalAnnulationCommande
+            commande={selectedCommande}
+            onClose={() => {
+              setShowAnnulationModal(false);
+              setSelectedCommande(null);
+            }}
+            onAnnuler={handleAnnulerCommande}
+            loading={actionLoading}
+          />
         )}
       </div>
     </div>

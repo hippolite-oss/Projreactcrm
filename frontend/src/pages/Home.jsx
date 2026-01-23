@@ -32,11 +32,13 @@ import {
   Package,
   ShoppingBag,
   Tag,
+  Loader2,
 } from "lucide-react";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import api from "../services/api";
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -914,72 +916,8 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* Formulaire de contact */}
-                <div className="bg-gradient-to-br from-gray-900 to-black text-white rounded-2xl shadow-2xl p-8">
-                  <h3 className="text-2xl font-bold mb-2">
-                    Demandez une démo gratuite
-                  </h3>
-                  <form className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          Nom
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                          placeholder="Votre nom"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          Entreprise
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                          placeholder="Nom de votre entreprise"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="votre@email.com"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="+33 1 23 45 67 89"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Message
-                      </label>
-                      <textarea
-                        rows={4}
-                        className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="Parlez-nous de vos besoins..."
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-                    >
-                      Demander ma démo gratuite
-                    </button>
-                  </form>
-                </div>
+                {/* Formulaire de contact fonctionnel */}
+                <ContactForm />
               </div>
             </motion.div>
           </div>
@@ -997,6 +935,241 @@ const Home = () => {
         </button>
       )}
     </>
+  );
+};
+
+// Composant ContactForm fonctionnel
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    nom: '',
+    entreprise: '',
+    email: '',
+    telephone: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    // Validation côté client
+    if (!formData.nom.trim()) {
+      setError('Le nom est requis');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('L\'email est requis');
+      setLoading(false);
+      return;
+    }
+
+    // Validation format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Veuillez saisir un email valide');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('📤 Envoi prospect:', formData);
+      
+      const response = await api.post('/api/prospects', {
+        ...formData,
+        source: 'website'
+      });
+      
+      console.log('✅ Réponse API:', response.data);
+
+      if (response.data.success) {
+        setSuccess(true);
+        setFormData({ nom: '', entreprise: '', email: '', telephone: '', message: '' });
+        
+        // Scroll vers le haut pour voir le message de succès
+        setTimeout(() => {
+          document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    } catch (error) {
+      console.error('❌ Erreur envoi prospect:', error);
+      
+      if (error.response?.status === 409) {
+        setError('Un prospect avec cet email existe déjà. Nous vous contacterons bientôt.');
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Une erreur est survenue. Veuillez réessayer plus tard.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center border border-green-200">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 0.5 }}
+        >
+          <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+        </motion.div>
+        <h3 className="text-2xl font-bold text-green-800 mb-2">
+          Demande envoyée avec succès !
+        </h3>
+        <p className="text-green-700 mb-4">
+          Merci pour votre intérêt. Notre équipe vous contactera dans les plus brefs délais pour organiser votre démonstration personnalisée.
+        </p>
+        <button 
+          onClick={() => setSuccess(false)}
+          className="inline-flex items-center gap-2 text-green-600 hover:text-green-800 font-medium transition-colors"
+        >
+          <ArrowRight className="w-4 h-4" />
+          Envoyer une nouvelle demande
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gradient-to-br from-gray-900 to-black text-white rounded-2xl shadow-2xl p-8">
+      <h3 className="text-2xl font-bold mb-2">
+        Demandez une démo gratuite
+      </h3>
+      <p className="text-gray-300 mb-6">
+        Découvrez comment notre CRM peut transformer votre business
+      </p>
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-lg mb-6"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+            {error}
+          </div>
+        </motion.div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Nom *
+            </label>
+            <input
+              type="text"
+              name="nom"
+              required
+              value={formData.nom}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
+              placeholder="Votre nom"
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Entreprise
+            </label>
+            <input
+              type="text"
+              name="entreprise"
+              value={formData.entreprise}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
+              placeholder="Nom de votre entreprise"
+              disabled={loading}
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Email *
+          </label>
+          <input
+            type="email"
+            name="email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
+            placeholder="votre@email.com"
+            disabled={loading}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Téléphone
+          </label>
+          <input
+            type="tel"
+            name="telephone"
+            value={formData.telephone}
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
+            placeholder="+33 1 23 45 67 89"
+            disabled={loading}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Message
+          </label>
+          <textarea
+            name="message"
+            rows={4}
+            value={formData.message}
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400 resize-none"
+            placeholder="Parlez-nous de vos besoins CRM, nombre d'utilisateurs, secteur d'activité..."
+            disabled={loading}
+          />
+        </div>
+        
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Envoi en cours...
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2">
+              <Mail className="w-5 h-5" />
+              Demander ma démo gratuite
+            </div>
+          )}
+        </button>
+
+        <p className="text-xs text-gray-400 text-center">
+          En soumettant ce formulaire, vous acceptez d'être contacté par notre équipe commerciale.
+        </p>
+      </form>
+    </div>
   );
 };
 

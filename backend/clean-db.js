@@ -42,6 +42,7 @@ async function cleanDatabase() {
       'contacts',
       'products',
       'clients',
+      'commandes_online',  // Ajouter la table des commandes
       'users'
     ];
     
@@ -59,7 +60,8 @@ async function cleanDatabase() {
       'users_role_enum',
       'quotes_status_enum',
       'invoices_status_enum',
-      'products_unit_enum'
+      'products_unit_enum',
+      'commandes_online_statut_enum'  // Ajouter l'enum des commandes
     ];
     
     for (const enumType of enumTypes) {
@@ -71,7 +73,8 @@ async function cleanDatabase() {
       }
     }
     
-    console.log('✅ Nettoyage complet de la base de données terminé');
+    console.log('🎉 Nettoyage complet de la base de données terminé');
+    console.log('📝 Vous pouvez maintenant redémarrer le backend');
     
   } catch (error) {
     console.error('❌ Erreur lors du nettoyage:', error.message);

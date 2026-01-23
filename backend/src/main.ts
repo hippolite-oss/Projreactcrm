@@ -4,11 +4,20 @@ import { AppModule } from './app.module';
 import { UsersService } from './users/users.service';
 
 async function bootstrap() {
+  // Log des variables d'environnement pour debug
+  console.log('🔧 Configuration Backend:');
+  console.log('  PORT:', process.env.PORT);
+  console.log('  CORS_ORIGIN:', process.env.CORS_ORIGIN);
+  console.log('  NODE_ENV:', process.env.NODE_ENV);
+
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+  console.log('🌐 CORS configuré pour:', corsOrigin);
+  
   app.enableCors({
-    origin: 'http://localhost:5173', // frontend
+    origin: corsOrigin,
     credentials: true,
   });
 
@@ -33,8 +42,9 @@ async function bootstrap() {
   }
   // ----------------------------------
 
-  await app.listen(3001);
-  console.log('Application running on http://localhost:3001');
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Application running on http://localhost:${port}`);
 }
 
 bootstrap();

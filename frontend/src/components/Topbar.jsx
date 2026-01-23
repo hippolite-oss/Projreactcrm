@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu, Bell, User, LogOut, Settings } from 'lucide-react'
+import { Menu, Bell, User, LogOut, Settings, ShoppingCart, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { useNavigate } from 'react-router-dom'
@@ -10,9 +10,10 @@ function Topbar({ onMenuClick }) {
   const { notifications } = useNotifications()
   const navigate = useNavigate()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [notificationMenuOpen, setNotificationMenuOpen] = useState(false)
 
-  // Debug: Log des notifications
-  console.log('🔔 Topbar - Notifications:', notifications);
+  // Calculer le total des notifications
+  const totalNotifications = (notifications.commandesNonLues || 0) + (notifications.prospectsNouveaux || 0)
 
   const handleLogout = () => {
     logout()
@@ -20,8 +21,7 @@ function Topbar({ onMenuClick }) {
   }
 
   const handleNotificationClick = () => {
-    console.log('🔔 Topbar - Clic sur notifications - Redirection vers Mes commandes');
-    navigate("/dashboard/commandes")
+    setNotificationMenuOpen(!notificationMenuOpen)
   }
 
   return (
@@ -35,18 +35,111 @@ function Topbar({ onMenuClick }) {
         </div>
       </div>
       <div className="topbar-right">
-        <button 
-          className="notification-button" 
-          onClick={handleNotificationClick}
-          title={`${notifications.commandesNonLues} nouvelle(s) commande(s)`}
-        >
-          <Bell size={20} />
-          {notifications.commandesNonLues > 0 && (
-            <span className="notification-badge">
-              {notifications.commandesNonLues > 99 ? '99+' : notifications.commandesNonLues}
-            </span>
+        <div className="notification-container">
+          <button 
+            className="notification-button" 
+            onClick={handleNotificationClick}
+            title={`${totalNotifications} notification(s)`}
+          >
+            <Bell size={20} />
+            {totalNotifications > 0 && (
+              <span className="notification-badge">
+                {totalNotifications > 99 ? '99+' : totalNotifications}
+              </span>
+            )}
+          </button>
+
+          {/* Dropdown des notifications */}
+          {notificationMenuOpen && (
+            <div className="notification-dropdown">
+              <div className="notification-header">
+                <h3>Notifications</h3>
+                <span className="notification-count">{totalNotifications}</span>
+              </div>
+              
+              <div className="notification-items">
+                {/* Notifications Commandes */}
+                {notifications.commandesNonLues > 0 && (
+                  <div 
+                    className="notification-item"
+                    onClick={() => {
+                      navigate("/dashboard/commandes")
+                      setNotificationMenuOpen(false)
+                    }}
+                  >
+                    <div className="notification-icon commandes">
+                      <ShoppingCart size={16} />
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-title">
+                        {notifications.commandesNonLues} nouvelle(s) commande(s)
+                      </div>
+                      {notifications.derniereCommande && (
+                        <div className="notification-subtitle">
+                          Dernière: {notifications.derniereCommande.nom}
+                        </div>
+                      )}
+                    </div>
+                    <div className="notification-badge-small">
+                      {notifications.commandesNonLues}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notifications Prospects */}
+                {notifications.prospectsNouveaux > 0 && (
+                  <div 
+                    className="notification-item"
+                    onClick={() => {
+                      navigate("/dashboard/prospects")
+                      setNotificationMenuOpen(false)
+                    }}
+                  >
+                    <div className="notification-icon prospects">
+                      <Users size={16} />
+                    </div>
+                    <div className="notification-content">
+                      <div className="notification-title">
+                        {notifications.prospectsNouveaux} nouveau(x) prospect(s)
+                      </div>
+                      {notifications.dernierProspect && (
+                        <div className="notification-subtitle">
+                          Dernier: {notifications.dernierProspect.nom}
+                        </div>
+                      )}
+                    </div>
+                    <div className="notification-badge-small">
+                      {notifications.prospectsNouveaux}
+                    </div>
+                  </div>
+                )}
+
+                {/* Aucune notification */}
+                {totalNotifications === 0 && (
+                  <div className="notification-empty">
+                    <Bell size={24} />
+                    <p>Aucune nouvelle notification</p>
+                  </div>
+                )}
+              </div>
+
+              {totalNotifications > 0 && (
+                <div className="notification-footer">
+                  <button 
+                    onClick={() => {
+                      navigate("/dashboard")
+                      setNotificationMenuOpen(false)
+                    }}
+                    className="view-all-btn"
+                  >
+                    Voir le dashboard
+                  </button>
+                </div>
+              )}
+            </div>
           )}
-        </button>
+        </div>
+
         <div className="user-menu">
           <button
             className="user-button"

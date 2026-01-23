@@ -8,6 +8,7 @@ import { QuoteItem } from '../quotes/entities/quote-item.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { InvoiceItem } from '../invoices/entities/invoice-item.entity';
 import { CommandeOnline } from '../commandes-online/entities/commande-online.entity';
+import { Prospect } from '../prospects/entities/prospect.entity';
 
 // Export all entities for easy import
 export { User } from '../users/entities/user.entity';
@@ -24,6 +25,8 @@ export { InvoiceStatus } from '../invoices/entities/invoice.entity';
 export { InvoiceItem } from '../invoices/entities/invoice-item.entity';
 export { CommandeOnline } from '../commandes-online/entities/commande-online.entity';
 export { CommandeOnlineStatus } from '../commandes-online/entities/commande-online.entity';
+export { Prospect } from '../prospects/entities/prospect.entity';
+export { ProspectStatus } from '../prospects/entities/prospect.entity';
 
 // Array of all entities for TypeORM configuration
 export const entities = [
@@ -36,4 +39,5 @@ export const entities = [
   Invoice,
   InvoiceItem,
   CommandeOnline,
+  Prospect,
 ];

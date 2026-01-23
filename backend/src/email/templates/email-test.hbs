@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Email</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #17a2b8;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #17a2b8;
+            margin: 0;
+            font-size: 28px;
+        }
+        .test-icon {
+            font-size: 48px;
+            margin: 10px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 15px 0;
+        }
+        .info-section {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .config-check {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .config-check h4 {
+            margin-top: 0;
+            color: #155724;
+        }
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #c3e6cb;
+        }
+        .config-item:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="test-icon">🧪</div>
+            <h1>Test Email</h1>
+            <div class="status-badge">✅ Configuration OK</div>
+        </div>
+
+        <p>Bonjour,</p>
+
+        <p>Cet email de test confirme que la configuration SMTP de votre système CRM fonctionne correctement.</p>
+
+        <div class="info-section">
+            <h3>📧 Informations du test</h3>
+            <p><strong>Destinataire :</strong> {{destinataire}}</p>
+            <p><strong>Date du test :</strong> {{dateTest}}</p>
+            <p><strong>Système :</strong> CRM System - Service Email</p>
+        </div>
+
+        <div class="config-check">
+            <h4>✅ Vérifications effectuées</h4>
+            <div class="config-item">
+                <span>Configuration SMTP</span>
+                <span class="check-icon">✓</span>
+            </div>
+            <div class="config-item">
+                <span>Authentification</span>
+                <span class="check-icon">✓</span>
+            </div>
+            <div class="config-item">
+                <span>Templates Handlebars</span>
+                <span class="check-icon">✓</span>
+            </div>
+            <div class="config-item">
+                <span>Envoi d'emails</span>
+                <span class="check-icon">✓</span>
+            </div>
+        </div>
+
+        <p style="text-align: center; font-size: 18px; color: #28a745;">
+            <strong>🎉 Système email opérationnel !</strong>
+        </p>
+
+        <p>Vous pouvez maintenant utiliser les fonctionnalités d'envoi d'emails automatiques pour :</p>
+        <ul>
+            <li>Confirmations de réception de commandes</li>
+            <li>Notifications de traitement</li>
+            <li>Alertes d'annulation</li>
+            <li>Communications personnalisées</li>
+        </ul>
+
+        <div class="footer">
+            <p>Cet email a été généré automatiquement par le système de test.</p>
+            <p>© {{annee}} CRM System. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

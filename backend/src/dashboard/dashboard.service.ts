@@ -44,5 +44,55 @@ export class DashboardService {
       growth,
     };
   }
+
+  async getClientsGrowth() {
+    // Données simulées pour la croissance des clients
+    const currentMonth = new Date().getMonth();
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    
+    const data = [];
+    for (let i = 0; i < 6; i++) {
+      const monthIndex = (currentMonth - 5 + i + 12) % 12;
+      data.push({
+        month: months[monthIndex],
+        clients: Math.floor(Math.random() * 50) + 20,
+        prospects: Math.floor(Math.random() * 30) + 10
+      });
+    }
+    
+    return { success: true, data };
+  }
+
+  async getRevenue() {
+    // Données simulées pour les revenus
+    const currentMonth = new Date().getMonth();
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    
+    const data = [];
+    for (let i = 0; i < 6; i++) {
+      const monthIndex = (currentMonth - 5 + i + 12) % 12;
+      data.push({
+        month: months[monthIndex],
+        revenue: Math.floor(Math.random() * 50000) + 20000,
+        target: 45000
+      });
+    }
+    
+    return { success: true, data };
+  }
+
+  async getClientStatus() {
+    // Données simulées pour le statut des clients
+    const totalClients = await this.clientsRepository.count();
+    
+    return {
+      success: true,
+      data: {
+        actifs: Math.floor(totalClients * 0.7),
+        inactifs: Math.floor(totalClients * 0.2),
+        prospects: Math.floor(totalClients * 0.1)
+      }
+    };
+  }
 }
 

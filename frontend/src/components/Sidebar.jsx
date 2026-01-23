@@ -90,6 +90,18 @@ function Sidebar({ isOpen }) {
       icon: ShoppingCart,
     },
     {
+      type: 'link',
+      path: '/dashboard/CommandesOnline',
+      label: 'Commandes en ligne',
+      icon: ShoppingCart,
+    },
+    {
+      type: 'link',
+      path: '/dashboard/prospects',
+      label: 'Prospects',
+      icon: Users,
+    },
+    {
       type: 'submenu',
       label: 'Factures',
       icon: Receipt,
