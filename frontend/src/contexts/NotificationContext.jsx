@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from './AuthContext';
+import GlobalNotification from '../components/GlobalNotification';
 
 const NotificationContext = createContext(null);
 
@@ -15,6 +16,35 @@ export function NotificationProvider({ children }) {
     dernierProspect: null,
     loading: false
   });
+
+  // État pour les notifications toast globales
+  const [toastNotification, setToastNotification] = useState(null);
+
+  // Fonction pour afficher une notification toast
+  const showToast = (message, type = 'info', options = {}) => {
+    const notification = {
+      id: Date.now(),
+      message,
+      type,
+      title: options.title,
+      autoHide: options.autoHide !== false, // Par défaut true
+      duration: options.duration || (type === 'error' ? 5000 : 3000)
+    };
+
+    setToastNotification(notification);
+
+    // Auto-hide si activé
+    if (notification.autoHide) {
+      setTimeout(() => {
+        setToastNotification(null);
+      }, notification.duration);
+    }
+  };
+
+  // Fonction pour fermer la notification toast
+  const hideToast = () => {
+    setToastNotification(null);
+  };
 
   // Fonction pour récupérer les statistiques des commandes ET prospects
   const fetchStats = async () => {
@@ -163,12 +193,20 @@ export function NotificationProvider({ children }) {
     marquerProspectContacte,
     ajouterNouvelleCommande,
     ajouterNouveauProspect,
-    rafraichirNotifications
+    rafraichirNotifications,
+    // Nouvelles fonctions toast
+    showToast,
+    hideToast
   };
 
   return (
     <NotificationContext.Provider value={value}>
       {children}
+      {/* Notification toast globale */}
+      <GlobalNotification 
+        notification={toastNotification} 
+        onClose={hideToast} 
+      />
     </NotificationContext.Provider>
   );
 }

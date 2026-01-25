@@ -1,0 +1,147 @@
+/* Styles spécifiques pour la page Categories */
+.categories-page {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.category-tree-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.category-tree-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-icon {
+  transition: all 0.2s ease-in-out;
+}
+
+.category-tree-item:hover .category-icon {
+  transform: scale(1.1);
+}
+
+.category-actions {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.category-tree-item:hover .category-actions {
+  opacity: 1;
+}
+
+.category-badge {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.category-modal {
+  backdrop-filter: blur(4px);
+}
+
+.category-form-section {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 1rem;
+  margin-left: 0.5rem;
+}
+
+.category-form-section.active {
+  border-left-color: #3b82f6;
+}
+
+.category-color-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.category-stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.category-stats-card.blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.category-stats-card.green {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.category-stats-card.purple {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.category-stats-card.orange {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .category-tree-item {
+    margin-left: 0 !important;
+  }
+  
+  .category-actions {
+    opacity: 1;
+  }
+  
+  .category-modal .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+}
+
+/* Animation pour l'arbre */
+.category-children {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour les couleurs Tailwind */
+.bg-blue-100 { background-color: #dbeafe; }
+.bg-purple-100 { background-color: #e9d5ff; }
+.bg-green-100 { background-color: #dcfce7; }
+.bg-red-100 { background-color: #fee2e2; }
+.bg-orange-100 { background-color: #fed7aa; }
+.bg-yellow-100 { background-color: #fef3c7; }
+.bg-pink-100 { background-color: #fce7f3; }
+.bg-gray-100 { background-color: #f3f4f6; }
+.bg-indigo-100 { background-color: #e0e7ff; }
+.bg-teal-100 { background-color: #ccfbf1; }
+
+.text-blue-600 { color: #2563eb; }
+.text-purple-600 { color: #9333ea; }
+.text-green-600 { color: #16a34a; }
+.text-red-600 { color: #dc2626; }
+.text-orange-600 { color: #ea580c; }
+.text-yellow-600 { color: #ca8a04; }
+.text-pink-600 { color: #db2777; }
+.text-gray-600 { color: #4b5563; }
+.text-indigo-600 { color: #4f46e5; }
+.text-teal-600 { color: #0d9488; }

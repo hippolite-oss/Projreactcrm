@@ -31,7 +31,7 @@ function Topbar({ onMenuClick }) {
           <Menu size={24} />
         </button>
         <div className="logo" onClick={() => navigate('/')}>
-          <h1>CRM</h1>
+          <h1>DIGIDEV</h1>
         </div>
       </div>
       <div className="topbar-right">
@@ -150,7 +150,7 @@ function Topbar({ onMenuClick }) {
           </button>
           {userMenuOpen && (
             <div className="user-menu-dropdown">
-              <button onClick={() => { navigate('/settings'); setUserMenuOpen(false); }}>
+              <button onClick={() => { navigate('/dashboard/settings'); setUserMenuOpen(false); }}>
                 <Settings size={16} />
                 Paramètres
               </button>

@@ -21,6 +21,8 @@ import Listeinvoices from './pages/Listeinvoices'
 import Listproduits from './pages/Listproduits'
 import CommandesOnline from './pages/CommandesOnline'
 import Prospects from './pages/Prospects'
+import Categories from './pages/Categories'
+import AuthCallback from './pages/AuthCallback'
 
 /* =========================
    PROTECTED ROUTE
@@ -53,6 +55,7 @@ function AppRoutes() {
       {/* Public routes */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/commande" element={<NouvelleCommande />} />
       <Route path="/nouvelle-commande" element={<NouvelleCommande />} />
 
@@ -78,6 +81,7 @@ function AppRoutes() {
         <Route path="commandes" element={<Commande />} />
         <Route path="CommandesOnline" element={<CommandesOnline />} />
         <Route path="prospects" element={<Prospects />} />
+        <Route path="categories" element={<Categories />} />
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
       </Route>

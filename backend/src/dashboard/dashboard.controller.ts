@@ -26,5 +26,20 @@ export class DashboardController {
   getClientStatus() {
     return this.dashboardService.getClientStatus();
   }
+
+  @Get('recent-activities')
+  getRecentActivities() {
+    return this.dashboardService.getRecentActivities();
+  }
+
+  @Get('notifications')
+  getNotifications() {
+    return this.dashboardService.getNotifications();
+  }
+
+  @Get('top-products')
+  getTopProducts() {
+    return this.dashboardService.getTopProducts();
+  }
 }
 

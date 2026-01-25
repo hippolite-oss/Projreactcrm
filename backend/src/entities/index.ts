@@ -9,6 +9,7 @@ import { Invoice } from '../invoices/entities/invoice.entity';
 import { InvoiceItem } from '../invoices/entities/invoice-item.entity';
 import { CommandeOnline } from '../commandes-online/entities/commande-online.entity';
 import { Prospect } from '../prospects/entities/prospect.entity';
+import { Category } from '../categories/entities/category.entity';
 
 // Export all entities for easy import
 export { User } from '../users/entities/user.entity';
@@ -16,7 +17,7 @@ export { UserRole } from '../users/entities/user.entity';
 export { Client } from '../clients/entities/client.entity';
 export { Contact } from '../contacts/entities/contact.entity';
 export { Product } from '../products/entities/product.entity';
-export { ProductUnit } from '../products/entities/product.entity';
+export { ProductUnit, ProductCategory } from '../products/entities/product.entity';
 export { Quote } from '../quotes/entities/quote.entity';
 export { QuoteStatus } from '../quotes/entities/quote.entity';
 export { QuoteItem } from '../quotes/entities/quote-item.entity';
@@ -27,6 +28,8 @@ export { CommandeOnline } from '../commandes-online/entities/commande-online.ent
 export { CommandeOnlineStatus } from '../commandes-online/entities/commande-online.entity';
 export { Prospect } from '../prospects/entities/prospect.entity';
 export { ProspectStatus } from '../prospects/entities/prospect.entity';
+export { Category } from '../categories/entities/category.entity';
+export { CategoryStatus } from '../categories/entities/category.entity';
 
 // Array of all entities for TypeORM configuration
 export const entities = [
@@ -40,4 +43,5 @@ export const entities = [
   InvoiceItem,
   CommandeOnline,
   Prospect,
+  Category,
 ];

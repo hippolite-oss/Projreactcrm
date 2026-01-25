@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Corrections - Rapports CRM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test des Corrections - Rapports CRM</h1>
+    
+    <div class="test-section">
+        <h2>✅ Corrections Appliquées</h2>
+        <ul>
+            <li><strong>Notifications :</strong> Auto-hide après 3-5 secondes</li>
+            <li><strong>Bouton fermeture :</strong> Amélioré avec icône et hover</li>
+            <li><strong>Exports :</strong> Gestion d'erreur robuste</li>
+            <li><strong>Menu export :</strong> Fermeture automatique après sélection</li>
+            <li><strong>Fonctions synchrones :</strong> Suppression des await inutiles</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Tests à Effectuer</h2>
+        <p>Allez sur <a href="http://localhost:1573" target="_blank">http://localhost:1573</a> et testez :</p>
+        
+        <ol>
+            <li><strong>Connexion :</strong> admin@test.com / admin123</li>
+            <li><strong>Page Rapports :</strong> Cliquez sur "Rapports" dans le sidebar</li>
+            <li><strong>Export PDF :</strong> Cliquez sur "Export PDF" - doit télécharger un fichier</li>
+            <li><strong>Menu Plus :</strong> Cliquez sur "Plus" puis testez Excel, CSV</li>
+            <li><strong>Notifications :</strong> Vérifiez qu'elles se ferment automatiquement</li>
+            <li><strong>Bouton fermeture :</strong> Testez le X sur les notifications</li>
+            <li><strong>Tests intégrés :</strong> Cliquez sur "Tests" et "Test PDF"</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Test API Backend</h2>
+        <button onclick="testBackendAPI()">Tester API Reports</button>
+        <div id="api-log" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Résultats Attendus</h2>
+        <ul>
+            <li class="success">✅ Export PDF fonctionne sans erreur</li>
+            <li class="success">✅ Export Excel génère un fichier .xlsx</li>
+            <li class="success">✅ Export CSV génère des fichiers .csv</li>
+            <li class="success">✅ Notifications se ferment automatiquement</li>
+            <li class="success">✅ Menu "Plus" se ferme après sélection</li>
+            <li class="success">✅ Bouton X ferme les notifications</li>
+            <li class="success">✅ Pas d'erreurs dans la console</li>
+        </ul>
+    </div>
+
+    <script>
+        async function testBackendAPI() {
+            const log = document.getElementById('api-log');
+            log.innerHTML = '<div class="info">🔄 Test de l\'API backend...</div>';
+            
+            try {
+                // Test de l'endpoint dashboard
+                const response = await fetch('http://localhost:3001/api/reports/dashboard?period=month');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log.innerHTML += '<div class="success">✅ API Dashboard OK</div>';
+                    log.innerHTML += '<div>Données reçues: ' + JSON.stringify(data, null, 2) + '</div>';
+                } else {
+                    log.innerHTML += '<div class="error">❌ Erreur API: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                log.innerHTML += '<div class="error">❌ Erreur réseau: ' + error.message + '</div>';
+                log.innerHTML += '<div class="info">💡 Vérifiez que le backend est démarré sur le port 3001</div>';
+            }
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            console.log('🧪 Page de test chargée');
+            console.log('Frontend: http://localhost:1573');
+            console.log('Backend: http://localhost:3001');
+        };
+    </script>
+</body>
+</html>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './Invoices.css';
 
 const Invoices = () => {
   // États pour les factures
@@ -56,7 +55,125 @@ const Invoices = () => {
     { id: 5, name: 'EnterprisePlus', email: 'service.facturation@enterpriseplus.com', phone: '+33 1 67 89 01 23', address: '654 Place du Commerce, 44000 Nantes' }
   ];
 
-
+  // Données de démonstration pour les factures
+  const demoInvoices = [
+    {
+      id: 1,
+      invoiceNumber: 'FAC-2024-0001',
+      clientId: 1,
+      clientName: 'TechCorp',
+      title: 'Développement site web',
+      description: 'Conception et développement site e-commerce',
+      items: [
+        { id: 1, description: 'Développement frontend', quantity: 40, unitPrice: 75, total: 3000 },
+        { id: 2, description: 'Développement backend', quantity: 60, unitPrice: 85, total: 5100 }
+      ],
+      subtotal: 8100,
+      taxRate: 20,
+      taxAmount: 1620,
+      total: 9720,
+      amountPaid: 5000,
+      amountDue: 4720,
+      issueDate: '2024-01-15',
+      dueDate: '2024-02-14',
+      paymentDate: null,
+      status: 'partial',
+      paymentMethod: 'bank_transfer'
+    },
+    {
+      id: 2,
+      invoiceNumber: 'FAC-2024-0002',
+      clientId: 2,
+      clientName: 'InnovateCo',
+      title: 'Consultation stratégique',
+      description: 'Audit et conseil en transformation digitale',
+      items: [
+        { id: 1, description: 'Audit initial', quantity: 8, unitPrice: 150, total: 1200 },
+        { id: 2, description: 'Ateliers stratégiques', quantity: 16, unitPrice: 125, total: 2000 }
+      ],
+      subtotal: 3200,
+      taxRate: 20,
+      taxAmount: 640,
+      total: 3840,
+      amountPaid: 3840,
+      amountDue: 0,
+      issueDate: '2024-01-10',
+      dueDate: '2024-02-09',
+      paymentDate: '2024-01-25',
+      status: 'paid',
+      paymentMethod: 'credit_card'
+    },
+    {
+      id: 3,
+      invoiceNumber: 'FAC-2024-0003',
+      clientId: 3,
+      clientName: 'GlobalSolutions',
+      title: 'Maintenance mensuelle',
+      description: 'Maintenance et support technique',
+      items: [
+        { id: 1, description: 'Support technique niveau 2', quantity: 20, unitPrice: 65, total: 1300 }
+      ],
+      subtotal: 1300,
+      taxRate: 20,
+      taxAmount: 260,
+      total: 1560,
+      amountPaid: 0,
+      amountDue: 1560,
+      issueDate: '2024-01-05',
+      dueDate: '2024-01-20',
+      paymentDate: null,
+      status: 'overdue',
+      daysOverdue: 15,
+      paymentMethod: 'bank_transfer'
+    },
+    {
+      id: 4,
+      invoiceNumber: 'FAC-2024-0004',
+      clientId: 4,
+      clientName: 'StartupXYZ',
+      title: 'Application mobile',
+      description: 'Développement application iOS/Android',
+      items: [
+        { id: 1, description: 'Design UI/UX', quantity: 30, unitPrice: 90, total: 2700 },
+        { id: 2, description: 'Développement mobile', quantity: 120, unitPrice: 95, total: 11400 },
+        { id: 3, description: 'Tests et validation', quantity: 25, unitPrice: 70, total: 1750 }
+      ],
+      subtotal: 15850,
+      taxRate: 20,
+      taxAmount: 3170,
+      total: 19020,
+      amountPaid: 10000,
+      amountDue: 9020,
+      issueDate: '2024-01-20',
+      dueDate: '2024-02-19',
+      paymentDate: null,
+      status: 'pending',
+      paymentMethod: 'bank_transfer'
+    },
+    {
+      id: 5,
+      invoiceNumber: 'FAC-2024-0005',
+      clientId: 5,
+      clientName: 'EnterprisePlus',
+      title: 'Formation équipe',
+      description: 'Formation React et bonnes pratiques',
+      items: [
+        { id: 1, description: 'Formation React avancé', quantity: 16, unitPrice: 180, total: 2880 },
+        { id: 2, description: 'Support après formation', quantity: 8, unitPrice: 95, total: 760 }
+      ],
+      subtotal: 3640,
+      taxRate: 20,
+      taxAmount: 728,
+      total: 4368,
+      amountPaid: 0,
+      amountDue: 4368,
+      issueDate: '2024-01-25',
+      dueDate: '2024-02-24',
+      paymentDate: null,
+      status: 'draft',
+      paymentMethod: 'bank_transfer'
+    }
+  ];
 
   // Options pour les filtres
   const statusOptions = [
@@ -98,7 +215,6 @@ const Invoices = () => {
     const loadInvoices = () => {
       setIsLoading(true);
       setTimeout(() => {
-        // Calculer les jours de retard pour les factures échues
         const today = new Date();
         const updatedInvoices = demoInvoices.map(invoice => {
           if (invoice.status === 'pending') {
@@ -124,7 +240,6 @@ const Invoices = () => {
   useEffect(() => {
     let results = [...invoices];
     
-    // Filtre par recherche
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       results = results.filter(invoice => 
@@ -135,17 +250,14 @@ const Invoices = () => {
       );
     }
     
-    // Filtre par statut
     if (statusFilter !== 'all') {
       results = results.filter(invoice => invoice.status === statusFilter);
     }
     
-    // Filtre par client
     if (clientFilter !== 'all') {
       results = results.filter(invoice => invoice.clientId === parseInt(clientFilter));
     }
     
-    // Filtre par date
     if (dateFilter !== 'all') {
       const today = new Date();
       const startOfWeek = new Date(today);
@@ -179,18 +291,15 @@ const Invoices = () => {
       });
     }
     
-    // Tri
     results.sort((a, b) => {
       let aValue = a[sortField];
       let bValue = b[sortField];
       
-      // Pour les dates
       if (sortField.includes('Date')) {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
       }
       
-      // Pour les montants
       if (sortField === 'total' || sortField === 'amountDue' || sortField === 'subtotal') {
         aValue = parseFloat(aValue);
         bValue = parseFloat(bValue);
@@ -246,103 +355,64 @@ const Invoices = () => {
     }
   };
 
-  // Gestion de la création de facture
-  const handleCreateInvoice = () => {
-    const newId = Math.max(...invoices.map(i => i.id)) + 1;
-    const invoiceNumber = `FAC-${new Date().getFullYear()}-${newId.toString().padStart(4, '0')}`;
-    
-    const client = demoClients.find(c => c.id === parseInt(newInvoice.clientId));
-    
-    // Calculer les totaux
-    const subtotal = newInvoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    const taxAmount = subtotal * (newInvoice.taxRate / 100);
-    const total = subtotal + taxAmount;
-    
-    // Calculer la date d'échéance
-    const dueDate = newInvoice.dueDate || 
-      new Date(new Date(newInvoice.issueDate).getTime() + newInvoice.paymentTerms * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    
-    const invoiceToAdd = {
-      ...newInvoice,
-      id: newId,
-      invoiceNumber,
-      clientName: client ? client.name : '',
-      subtotal,
-      taxAmount,
-      total,
-      amountPaid: 0,
-      amountDue: total,
-      status: 'draft',
-      dueDate,
-      issueDate: newInvoice.issueDate || new Date().toISOString().split('T')[0]
-    };
-    
-    setInvoices([invoiceToAdd, ...invoices]);
-    setShowCreateModal(false);
-    resetNewInvoiceForm();
+  // Formater la date
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
 
-  const resetNewInvoiceForm = () => {
-    setNewInvoice({
-      clientId: '',
-      clientName: '',
-      title: '',
-      description: '',
-      items: [
-        { id: 1, description: '', quantity: 1, unitPrice: 0, total: 0 }
-      ],
-      subtotal: 0,
-      taxRate: 20,
-      taxAmount: 0,
-      total: 0,
-      issueDate: new Date().toISOString().split('T')[0],
-      dueDate: '',
-      paymentTerms: 30,
-      notes: '',
-      terms: 'Paiement à 30 jours. Retard de paiement: pénalités selon taux légal.',
-      paymentMethod: 'bank_transfer'
-    });
+  // Formater le montant
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
-  // Gérer les changements dans les lignes de la facture
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...newInvoice.items];
-    updatedItems[index] = {
-      ...updatedItems[index],
-      [field]: field === 'quantity' || field === 'unitPrice' ? parseFloat(value) || 0 : value
-    };
-    
-    // Recalculer le total pour cette ligne
-    if (field === 'quantity' || field === 'unitPrice') {
-      updatedItems[index].total = updatedItems[index].quantity * updatedItems[index].unitPrice;
-    }
-    
-    setNewInvoice({
-      ...newInvoice,
-      items: updatedItems
-    });
-  };
-
-  // Ajouter une ligne à la facture
-  const addItem = () => {
-    const newId = newInvoice.items.length > 0 ? Math.max(...newInvoice.items.map(item => item.id)) + 1 : 1;
-    setNewInvoice({
-      ...newInvoice,
-      items: [...newInvoice.items, { id: newId, description: '', quantity: 1, unitPrice: 0, total: 0 }]
-    });
-  };
-
-  // Supprimer une ligne de la facture
-  const removeItem = (index) => {
-    if (newInvoice.items.length > 1) {
-      const updatedItems = [...newInvoice.items];
-      updatedItems.splice(index, 1);
-      setNewInvoice({
-        ...newInvoice,
-        items: updatedItems
-      });
+  // Obtenir la classe CSS pour le statut
+  const getStatusClass = (status) => {
+    switch(status) {
+      case 'draft': return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'partial': return 'bg-blue-100 text-blue-800';
+      case 'paid': return 'bg-green-100 text-green-800';
+      case 'overdue': return 'bg-red-100 text-red-800';
+      case 'cancelled': return 'bg-gray-200 text-gray-600';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Obtenir le label du statut
+  const getStatusLabel = (status) => {
+    switch(status) {
+      case 'draft': return 'Brouillon';
+      case 'pending': return 'En attente';
+      case 'partial': return 'Partiellement payée';
+      case 'paid': return 'Payée';
+      case 'overdue': return 'En retard';
+      case 'cancelled': return 'Annulée';
+      default: return status;
+    }
+  };
+
+  // Calculer les statistiques
+  const calculateStats = () => {
+    const totalInvoices = invoices.length;
+    const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
+    const totalPaid = invoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
+    const totalDue = invoices.reduce((sum, inv) => sum + inv.amountDue, 0);
+    const overdueInvoices = invoices.filter(inv => inv.status === 'overdue').length;
+    const overdueAmount = invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + inv.amountDue, 0);
+    
+    return {
+      totalInvoices,
+      totalAmount,
+      totalPaid,
+      totalDue,
+      overdueInvoices,
+      overdueAmount
+    };
+  };
+
+  const stats = calculateStats();
 
   // Voir une facture
   const viewInvoice = (invoice) => {
@@ -356,75 +426,16 @@ const Invoices = () => {
     setShowPaymentModal(true);
   };
 
-  const confirmPayment = (paymentData) => {
-    const updatedInvoices = invoices.map(i => {
-      if (i.id === currentInvoice.id) {
-        const amountPaid = i.amountPaid + paymentData.amount;
-        const amountDue = i.total - amountPaid;
-        const status = amountDue === 0 ? 'paid' : amountPaid > 0 ? 'partial' : i.status;
-        
-        return {
-          ...i,
-          amountPaid,
-          amountDue,
-          status,
-          paymentDate: paymentData.date || new Date().toISOString().split('T')[0],
-          paymentMethod: paymentData.method || i.paymentMethod
-        };
-      }
-      return i;
-    });
-    
-    setInvoices(updatedInvoices);
-    setShowPaymentModal(false);
-    setCurrentInvoice(null);
-  };
-
   // Envoyer une facture
   const sendInvoice = (invoice) => {
     setCurrentInvoice(invoice);
     setShowSendModal(true);
   };
 
-  const confirmSendInvoice = () => {
-    const updatedInvoices = invoices.map(i => 
-      i.id === currentInvoice.id && i.status === 'draft'
-        ? { ...i, status: 'pending' }
-        : i
-    );
-    
-    setInvoices(updatedInvoices);
-    setShowSendModal(false);
-    setCurrentInvoice(null);
-  };
-
   // Envoyer un rappel
   const sendReminder = (invoice) => {
     setCurrentInvoice(invoice);
     setShowReminderModal(true);
-  };
-
-  const confirmSendReminder = () => {
-    // Dans une application réelle, on enverrait un email ici
-    alert(`Rappel envoyé pour la facture ${currentInvoice.invoiceNumber}`);
-    setShowReminderModal(false);
-    setCurrentInvoice(null);
-  };
-
-  // Annuler une facture
-  const cancelInvoice = (id) => {
-    const updatedInvoices = invoices.map(i => 
-      i.id === id 
-        ? { 
-            ...i, 
-            status: 'cancelled', 
-            cancellationDate: new Date().toISOString().split('T')[0],
-            amountDue: 0
-          }
-        : i
-    );
-    
-    setInvoices(updatedInvoices);
   };
 
   // Dupliquer une facture
@@ -464,931 +475,612 @@ const Invoices = () => {
     linkElement.click();
   };
 
-  // Exporter en PDF (simulation)
-  const exportToPDF = (invoice) => {
-    // Dans une application réelle, on générerait un PDF ici
-    alert(`Génération du PDF pour la facture ${invoice.invoiceNumber}`);
-  };
-
-  // Formater la date
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
-
-  // Formater le montant
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
-  };
-
-  // Obtenir la classe CSS pour le statut
-  const getStatusClass = (status) => {
-    switch(status) {
-      case 'draft': return 'status-draft';
-      case 'pending': return 'status-pending';
-      case 'partial': return 'status-partial';
-      case 'paid': return 'status-paid';
-      case 'overdue': return 'status-overdue';
-      case 'cancelled': return 'status-cancelled';
-      default: return '';
-    }
-  };
-
-  // Obtenir le label du statut
-  const getStatusLabel = (status) => {
-    switch(status) {
-      case 'draft': return 'Brouillon';
-      case 'pending': return 'En attente';
-      case 'partial': return 'Partiellement payée';
-      case 'paid': return 'Payée';
-      case 'overdue': return 'En retard';
-      case 'cancelled': return 'Annulée';
-      default: return status;
-    }
-  };
-
-  // Calculer les statistiques
-  const calculateStats = () => {
-    const totalInvoices = invoices.length;
-    const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
-    const totalPaid = invoices.reduce((sum, inv) => sum + inv.amountPaid, 0);
-    const totalDue = invoices.reduce((sum, inv) => sum + inv.amountDue, 0);
-    const overdueInvoices = invoices.filter(inv => inv.status === 'overdue').length;
-    const overdueAmount = invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + inv.amountDue, 0);
+  // Fonction pour afficher un toast
+  const showToast = (message, type = 'success') => {
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+    toast.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
     
-    return {
-      totalInvoices,
-      totalAmount,
-      totalPaid,
-      totalDue,
-      overdueInvoices,
-      overdueAmount
-    };
+    setTimeout(() => {
+      toast.classList.remove('translate-x-full');
+      toast.classList.add('translate-x-0');
+    }, 10);
+    
+    setTimeout(() => {
+      toast.classList.remove('translate-x-0');
+      toast.classList.add('translate-x-full');
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 300);
+    }, 3000);
   };
-
-  const stats = calculateStats();
 
   return (
-    <div className="invoices-page">
-      <header className="invoices-header">
-        <div className="header-title">
-          <h1>Gestion des factures</h1>
-          <p>{filteredInvoices.length} facture{filteredInvoices.length !== 1 ? 's' : ''} trouvée{filteredInvoices.length !== 1 ? 's' : ''} | Encaissements: {formatCurrency(stats.totalPaid)} / {formatCurrency(stats.totalAmount)}</p>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      {/* Header avec statistiques */}
+      <header className="mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Gestion des factures</h1>
+            <p className="text-gray-600">
+              {filteredInvoices.length} facture{filteredInvoices.length !== 1 ? 's' : ''} • 
+              Encaissements: <span className="font-semibold">{formatCurrency(stats.totalPaid)}</span> / {formatCurrency(stats.totalAmount)}
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-3">
+            <button 
+              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              onClick={exportInvoices}
+              disabled={filteredInvoices.length === 0}
+            >
+              <span>📥</span>
+              Exporter
+            </button>
+            <button 
+              className="px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <span>➕</span>
+              Nouvelle facture
+            </button>
+          </div>
         </div>
-        <div className="header-actions">
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowCreateModal(true)}
-          >
-            <svg className="icon" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-            </svg>
-            Nouvelle facture
-          </button>
-          <button 
-            className="btn btn-secondary"
-            onClick={exportInvoices}
-            disabled={filteredInvoices.length === 0}
-          >
-            <svg className="icon" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
-            </svg>
-            Exporter
-          </button>
+
+        {/* Cartes de statistiques */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+            <div className="text-sm text-gray-500">Chiffre d'affaires</div>
+            <div className="text-2xl font-bold text-gray-800">{formatCurrency(stats.totalAmount)}</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+            <div className="text-sm text-gray-500">Encaissé</div>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(stats.totalPaid)}</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+            <div className="text-sm text-gray-500">En attente</div>
+            <div className="text-2xl font-bold text-yellow-600">{formatCurrency(stats.totalDue)}</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+            <div className="text-sm text-gray-500">En retard</div>
+            <div className="text-2xl font-bold text-red-600">{formatCurrency(stats.overdueAmount)}</div>
+          </div>
         </div>
       </header>
 
-      {/* Modal de visualisation de facture */}
-      {showViewModal && currentInvoice && (
-        <div className="modal-overlay">
-          <div className="modal view-invoice-modal">
-            <div className="modal-header">
-              <div className="invoice-header-info">
-                <h2>Facture {currentInvoice.invoiceNumber}</h2>
-                <div className={`invoice-status ${getStatusClass(currentInvoice.status)}`}>
-                  {getStatusLabel(currentInvoice.status)}
-                </div>
-              </div>
-              <button className="close-btn" onClick={() => setShowViewModal(false)}>
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-                </svg>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="invoice-details-grid">
-                <div className="invoice-from">
-                  <h4>Émetteur</h4>
-                  <p><strong>Votre Entreprise SARL</strong></p>
-                  <p>123 Avenue des affaires</p>
-                  <p>75008 Paris, France</p>
-                  <p>SIRET: 123 456 789 00012</p>
-                  <p>contact@votresociete.com</p>
-                </div>
-                <div className="invoice-to">
-                  <h4>Client</h4>
-                  <p><strong>{currentInvoice.clientName}</strong></p>
-                  <p>{demoClients.find(c => c.id === currentInvoice.clientId)?.address}</p>
-                  <p>{demoClients.find(c => c.id === currentInvoice.clientId)?.email}</p>
-                  <p>{demoClients.find(c => c.id === currentInvoice.clientId)?.phone}</p>
-                </div>
-                <div className="invoice-info">
-                  <h4>Informations facture</h4>
-                  <div className="info-row">
-                    <span>Date d'émission:</span>
-                    <span>{formatDate(currentInvoice.issueDate)}</span>
-                  </div>
-                  <div className="info-row">
-                    <span>Date d'échéance:</span>
-                    <span>{formatDate(currentInvoice.dueDate)}</span>
-                  </div>
-                  <div className="info-row">
-                    <span>Statut:</span>
-                    <span className={`status-badge ${getStatusClass(currentInvoice.status)}`}>
-                      {getStatusLabel(currentInvoice.status)}
-                    </span>
-                  </div>
-                  {currentInvoice.paymentDate && (
-                    <div className="info-row">
-                      <span>Date de paiement:</span>
-                      <span>{formatDate(currentInvoice.paymentDate)}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="invoice-items-preview">
-                <h3>Détails de la facture</h3>
-                <div className="items-table">
-                  <div className="items-header">
-                    <div className="item-col description">Description</div>
-                    <div className="item-col quantity">Quantité</div>
-                    <div className="item-col price">Prix unitaire</div>
-                    <div className="item-col total">Total</div>
-                  </div>
-                  {currentInvoice.items.map(item => (
-                    <div key={item.id} className="item-row">
-                      <div className="item-col description">{item.description}</div>
-                      <div className="item-col quantity">{item.quantity}</div>
-                      <div className="item-col price">{formatCurrency(item.unitPrice)}</div>
-                      <div className="item-col total">{formatCurrency(item.total)}</div>
-                    </div>
-                  ))}
-                  <div className="items-footer">
-                    <div className="total-row">
-                      <span>Sous-total:</span>
-                      <span>{formatCurrency(currentInvoice.subtotal)}</span>
-                    </div>
-                    <div className="total-row">
-                      <span>TVA ({currentInvoice.taxRate}%):</span>
-                      <span>{formatCurrency(currentInvoice.taxAmount)}</span>
-                    </div>
-                    <div className="total-row grand-total">
-                      <span>Total TTC:</span>
-                      <span>{formatCurrency(currentInvoice.total)}</span>
-                    </div>
-                    <div className="payment-summary">
-                      <div className="payment-row">
-                        <span>Montant payé:</span>
-                        <span className="paid-amount">{formatCurrency(currentInvoice.amountPaid)}</span>
-                      </div>
-                      <div className="payment-row">
-                        <span>Solde dû:</span>
-                        <span className={`due-amount ${currentInvoice.amountDue > 0 ? 'amount-due' : 'amount-paid'}`}>
-                          {formatCurrency(currentInvoice.amountDue)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="invoice-terms">
-                <h4>Conditions de paiement</h4>
-                <p>{currentInvoice.terms}</p>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowViewModal(false)}>
-                Fermer
-              </button>
-              <button className="btn btn-secondary" onClick={() => exportToPDF(currentInvoice)}>
-                <svg className="icon" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M7,13H17V15H7V13M7,17H17V19H7V17M7,9H12V11H7V9Z" />
-                </svg>
-                Télécharger PDF
-              </button>
-              {currentInvoice.status === 'draft' && (
-                <button className="btn btn-primary" onClick={() => sendInvoice(currentInvoice)}>
-                  Envoyer la facture
-                </button>
-              )}
-              {(currentInvoice.status === 'pending' || currentInvoice.status === 'overdue' || currentInvoice.status === 'partial') && (
-                <button className="btn btn-success" onClick={() => recordPayment(currentInvoice)}>
-                  Enregistrer un paiement
-                </button>
-              )}
-              {(currentInvoice.status === 'pending' || currentInvoice.status === 'overdue') && (
-                <button className="btn btn-warning" onClick={() => sendReminder(currentInvoice)}>
-                  Envoyer un rappel
-                </button>
-              )}
-              {currentInvoice.status !== 'paid' && currentInvoice.status !== 'cancelled' && (
-                <button className="btn btn-danger" onClick={() => cancelInvoice(currentInvoice.id)}>
-                  Annuler
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal d'enregistrement de paiement */}
-      {showPaymentModal && currentInvoice && (
-        <div className="modal-overlay">
-          <div className="modal payment-modal">
-            <div className="modal-header">
-              <h2>Enregistrer un paiement</h2>
-              <button className="close-btn" onClick={() => setShowPaymentModal(false)}>
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-                </svg>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="payment-info">
-                <p>Facture: <strong>{currentInvoice.invoiceNumber}</strong></p>
-                <p>Client: <strong>{currentInvoice.clientName}</strong></p>
-                <p>Montant total: <strong>{formatCurrency(currentInvoice.total)}</strong></p>
-                <p>Déjà payé: <strong>{formatCurrency(currentInvoice.amountPaid)}</strong></p>
-                <p>Solde dû: <strong>{formatCurrency(currentInvoice.amountDue)}</strong></p>
-              </div>
-              <div className="form-group">
-                <label>Montant du paiement *</label>
-                <input
-                  type="number"
-                  min="0.01"
-                  max={currentInvoice.amountDue}
-                  step="0.01"
-                  defaultValue={currentInvoice.amountDue}
-                  placeholder="Montant"
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Date du paiement</label>
-                  <input
-                    type="date"
-                    defaultValue={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Mode de paiement</label>
-                  <select defaultValue={currentInvoice.paymentMethod}>
-                    {paymentMethods.map(method => (
-                      <option key={method.value} value={method.value}>{method.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Référence (optionnel)</label>
-                <input
-                  type="text"
-                  placeholder="Référence de virement, numéro de chèque..."
-                />
-              </div>
-              <div className="form-group">
-                <label>Notes (optionnel)</label>
-                <textarea
-                  rows="3"
-                  placeholder="Notes sur ce paiement..."
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>
-                Annuler
-              </button>
-              <button className="btn btn-success" onClick={() => confirmPayment({ amount: currentInvoice.amountDue, date: new Date().toISOString().split('T')[0], method: currentInvoice.paymentMethod })}>
-                Enregistrer le paiement
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal d'envoi de rappel */}
-      {showReminderModal && currentInvoice && (
-        <div className="modal-overlay">
-          <div className="modal reminder-modal">
-            <div className="modal-header">
-              <h2>Envoyer un rappel</h2>
-              <button className="close-btn" onClick={() => setShowReminderModal(false)}>
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-                </svg>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="reminder-info">
-                <p>Vous êtes sur le point d'envoyer un rappel pour la facture <strong>{currentInvoice.invoiceNumber}</strong> à <strong>{currentInvoice.clientName}</strong>.</p>
-                <p>Montant dû: <strong>{formatCurrency(currentInvoice.amountDue)}</strong></p>
-                <p>Date d'échéance: <strong>{formatDate(currentInvoice.dueDate)}</strong></p>
-                {currentInvoice.daysOverdue && (
-                  <p className="overdue-alert">En retard de: <strong>{currentInvoice.daysOverdue} jours</strong></p>
-                )}
-              </div>
-              <div className="form-group">
-                <label>Email du destinataire</label>
-                <input
-                  type="email"
-                  defaultValue={demoClients.find(c => c.id === currentInvoice.clientId)?.email || ''}
-                  placeholder="email@exemple.com"
-                />
-              </div>
-              <div className="form-group">
-                <label>Message personnalisé</label>
-                <textarea
-                  rows="6"
-                  defaultValue={`Bonjour,
-
-Ceci est un rappel concernant la facture ${currentInvoice.invoiceNumber} d'un montant de ${formatCurrency(currentInvoice.amountDue)}.
-
-Date d'échéance: ${formatDate(currentInvoice.dueDate)}
-${currentInvoice.daysOverdue ? `Cette facture est en retard de ${currentInvoice.daysOverdue} jours.` : ''}
-
-Veuillez régulariser votre situation au plus vite.
-
-Cordialement,
-Le service comptable`}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowReminderModal(false)}>
-                Annuler
-              </button>
-              <button className="btn btn-warning" onClick={confirmSendReminder}>
-                Envoyer le rappel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal d'envoi de facture */}
-      {showSendModal && currentInvoice && (
-        <div className="modal-overlay">
-          <div className="modal send-invoice-modal">
-            <div className="modal-header">
-              <h2>Envoyer la facture</h2>
-              <button className="close-btn" onClick={() => setShowSendModal(false)}>
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-                </svg>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="send-invoice-info">
-                <p>Vous êtes sur le point d'envoyer la facture <strong>{currentInvoice.invoiceNumber}</strong> à <strong>{currentInvoice.clientName}</strong>.</p>
-                <p>Montant: <strong>{formatCurrency(currentInvoice.total)}</strong></p>
-              </div>
-              <div className="form-group">
-                <label>Email du destinataire</label>
-                <input
-                  type="email"
-                  defaultValue={demoClients.find(c => c.id === currentInvoice.clientId)?.email || ''}
-                  placeholder="email@exemple.com"
-                />
-              </div>
-              <div className="form-group">
-                <label>Message personnalisé (optionnel)</label>
-                <textarea
-                  rows="4"
-                  defaultValue={`Bonjour,
-
-Veuillez trouver ci-joint notre facture ${currentInvoice.invoiceNumber} d'un montant de ${formatCurrency(currentInvoice.total)}.
-
-Date d'échéance: ${formatDate(currentInvoice.dueDate)}
-
-N'hésitez pas à nous contacter pour toute question.
-
-Cordialement,
-Le service comptable`}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowSendModal(false)}>
-                Annuler
-              </button>
-              <button className="btn btn-primary" onClick={confirmSendInvoice}>
-                Envoyer la facture
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de confirmation de suppression */}
-      {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="modal delete-modal">
-            <div className="modal-header">
-              <h2>Confirmer la suppression</h2>
-            </div>
-            <div className="modal-body">
-              <p>Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible.</p>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
-                Annuler
-              </button>
-              <button className="btn btn-danger" onClick={deleteInvoice}>
-                Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Barre de recherche et filtres */}
-      <div className="controls-bar">
-        <div className="search-container">
-          <svg className="search-icon" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
-          </svg>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Rechercher une facture..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && (
-            <button className="clear-search" onClick={() => setSearchTerm('')}>
-              <svg viewBox="0 0 24 24">
-                <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
-              </svg>
-            </button>
-          )}
-        </div>
+      <div className="bg-white rounded-xl shadow border border-gray-200 p-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Barre de recherche */}
+          <div className="flex-1">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-gray-400">🔍</span>
+              </div>
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="Rechercher une facture..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button 
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setSearchTerm('')}
+                >
+                  <span className="text-gray-400 hover:text-gray-600">✕</span>
+                </button>
+              )}
+            </div>
+          </div>
 
-        <div className="filters-container">
-          <div className="filter-group">
-            <label htmlFor="statusFilter">Statut</label>
+          {/* Filtres */}
+          <div className="flex flex-wrap gap-3">
             <select
-              id="statusFilter"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               {statusOptions.map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </div>
 
-          <div className="filter-group">
-            <label htmlFor="clientFilter">Client</label>
             <select
-              id="clientFilter"
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
+              className="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               {clientOptions.map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </div>
 
-          <div className="filter-group">
-            <label htmlFor="dateFilter">Date</label>
             <select
-              id="dateFilter"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
+              className="px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               {dateOptions.map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
-          </div>
 
-          <button 
-            className="btn btn-secondary"
-            onClick={() => {
-              setSearchTerm('');
-              setStatusFilter('all');
-              setClientFilter('all');
-              setDateFilter('all');
-            }}
-          >
-            Réinitialiser
-          </button>
+            <button 
+              className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('all');
+                setClientFilter('all');
+                setDateFilter('all');
+              }}
+            >
+              Réinitialiser
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Actions groupées */}
       {selectedInvoices.length > 0 && (
-        <div className="bulk-actions">
-          <div className="selected-count">
-            {selectedInvoices.length} facture{selectedInvoices.length !== 1 ? 's' : ''} sélectionnée{selectedInvoices.length !== 1 ? 's' : ''}
-          </div>
-          <div className="bulk-buttons">
-            <button className="btn btn-secondary">
-              <svg className="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M20,6H12L10,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8A2,2 0 0,0 20,6M20,18H4V8H20M16,12L12,16V13H8V11H12V8L16,12Z" />
-              </svg>
-              Envoyer
-            </button>
-            <button className="btn btn-secondary">
-              <svg className="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
-              </svg>
-              Exporter
-            </button>
-            <button className="btn btn-danger">
-              <svg className="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-              </svg>
-              Supprimer
-            </button>
-            <button 
-              className="btn btn-secondary"
-              onClick={() => setSelectedInvoices([])}
-            >
-              Annuler
-            </button>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-blue-700 font-medium">
+              {selectedInvoices.length} facture{selectedInvoices.length !== 1 ? 's' : ''} sélectionnée{selectedInvoices.length !== 1 ? 's' : ''}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button className="px-4 py-2 bg-white border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2">
+                <span>📧</span>
+                Envoyer
+              </button>
+              <button className="px-4 py-2 bg-white border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2">
+                <span>📥</span>
+                Exporter
+              </button>
+              <button className="px-4 py-2 bg-red-100 border border-red-300 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2">
+                <span>🗑️</span>
+                Supprimer
+              </button>
+              <button 
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                onClick={() => setSelectedInvoices([])}
+              >
+                Annuler
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Tableau des factures */}
-      <div className="invoices-table-container">
+      <div className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
         {isLoading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p>Chargement des factures...</p>
+          <div className="p-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+            <p className="mt-4 text-gray-600">Chargement des factures...</p>
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="empty-state">
-            <svg className="empty-icon" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,19L12,15H9V10H15V15L13,19H10Z" />
-            </svg>
-            <h3>Aucune facture trouvée</h3>
-            <p>{searchTerm || statusFilter !== 'all' || clientFilter !== 'all' || dateFilter !== 'all' 
-              ? "Essayez de modifier vos critères de recherche ou de filtrage." 
-              : "Commencez par créer une nouvelle facture."}</p>
+          <div className="p-12 text-center">
+            <div className="text-6xl mb-4">📄</div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Aucune facture trouvée</h3>
+            <p className="text-gray-500 mb-6">
+              {searchTerm || statusFilter !== 'all' || clientFilter !== 'all' || dateFilter !== 'all' 
+                ? "Essayez de modifier vos critères de recherche" 
+                : "Commencez par créer votre première facture"}
+            </p>
             <button 
-              className="btn btn-primary"
+              className="px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               onClick={() => setShowCreateModal(true)}
             >
               Créer une facture
             </button>
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="invoices-table">
-              <thead>
-                <tr>
-                  <th className="checkbox-column">
-                    <input
-                      type="checkbox"
-                      checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
-                      onChange={toggleSelectAll}
-                      disabled={filteredInvoices.length === 0}
-                    />
-                  </th>
-                  <th 
-                    className={`sortable ${sortField === 'invoiceNumber' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('invoiceNumber')}
-                  >
-                    <span>N° Facture</span>
-                    {sortField === 'invoiceNumber' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th 
-                    className={`sortable ${sortField === 'clientName' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('clientName')}
-                  >
-                    <span>Client</span>
-                    {sortField === 'clientName' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th>Titre</th>
-                  <th 
-                    className={`sortable ${sortField === 'issueDate' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('issueDate')}
-                  >
-                    <span>Date</span>
-                    {sortField === 'issueDate' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th 
-                    className={`sortable ${sortField === 'dueDate' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('dueDate')}
-                  >
-                    <span>Échéance</span>
-                    {sortField === 'dueDate' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th 
-                    className={`sortable ${sortField === 'total' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('total')}
-                  >
-                    <span>Total</span>
-                    {sortField === 'total' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th 
-                    className={`sortable ${sortField === 'amountDue' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('amountDue')}
-                  >
-                    <span>Solde dû</span>
-                    {sortField === 'amountDue' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th 
-                    className={`sortable ${sortField === 'status' ? 'sorted' : ''}`}
-                    onClick={() => handleSort('status')}
-                  >
-                    <span>Statut</span>
-                    {sortField === 'status' && (
-                      <svg className="sort-icon" viewBox="0 0 24 24">
-                        {sortDirection === 'asc' ? 
-                          <path fill="currentColor" d="M7,15L12,10L17,15H7Z" /> :
-                          <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                        }
-                      </svg>
-                    )}
-                  </th>
-                  <th className="actions-column">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInvoices.map(invoice => {
-                  const isOverdue = invoice.status === 'overdue';
-                  const dueDate = new Date(invoice.dueDate);
-                  const today = new Date();
-                  const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                  
-                  return (
-                    <tr key={invoice.id} className={selectedInvoices.includes(invoice.id) ? 'selected' : ''}>
-                      <td className="checkbox-column">
-                        <input
-                          type="checkbox"
-                          checked={selectedInvoices.includes(invoice.id)}
-                          onChange={() => toggleSelectInvoice(invoice.id)}
-                        />
-                      </td>
-                      <td>
-                        <div className="invoice-number">{invoice.invoiceNumber}</div>
-                      </td>
-                      <td>
-                        <div className="client-info">
-                          <div className="client-name">{invoice.clientName}</div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="invoice-title">{invoice.title}</div>
-                        <div className="invoice-description">{invoice.description.substring(0, 40)}...</div>
-                      </td>
-                      <td>{formatDate(invoice.issueDate)}</td>
-                      <td>
-                        <div className={`due-date ${isOverdue ? 'overdue' : daysUntilDue <= 7 && invoice.status !== 'paid' && invoice.status !== 'cancelled' ? 'due-soon' : ''}`}>
-                          {formatDate(invoice.dueDate)}
-                          {isOverdue && invoice.daysOverdue && (
-                            <div className="overdue-badge">{invoice.daysOverdue} jours</div>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="invoice-total">{formatCurrency(invoice.total)}</div>
-                      </td>
-                      <td>
-                        <div className={`amount-due ${invoice.amountDue > 0 ? 'has-balance' : 'paid'}`}>
-                          {formatCurrency(invoice.amountDue)}
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`status-badge ${getStatusClass(invoice.status)}`}>
-                          {getStatusLabel(invoice.status)}
-                        </span>
-                      </td>
-                      <td className="actions-column">
-                        <div className="action-buttons">
-                          <button 
-                            className="action-btn view-btn"
-                            title="Voir"
-                            onClick={() => viewInvoice(invoice)}
-                          >
-                            <svg viewBox="0 0 24 24">
-                              <path fill="currentColor" d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" />
-                            </svg>
-                          </button>
-                          <button 
-                            className="action-btn edit-btn"
-                            title="Modifier"
-                            onClick={() => setShowCreateModal(true)}
-                          >
-                            <svg viewBox="0 0 24 24">
-                              <path fill="currentColor" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
-                            </svg>
-                          </button>
-                          {invoice.status === 'draft' && (
+          <>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
+                        onChange={toggleSelectAll}
+                        disabled={filteredInvoices.length === 0}
+                        className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                      />
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('invoiceNumber')}
+                    >
+                      <div className="flex items-center gap-1">
+                        N° Facture
+                        {sortField === 'invoiceNumber' && (
+                          <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('clientName')}
+                    >
+                      <div className="flex items-center gap-1">
+                        Client
+                        {sortField === 'clientName' && (
+                          <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Échéance
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('total')}
+                    >
+                      <div className="flex items-center gap-1">
+                        Total
+                        {sortField === 'total' && (
+                          <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('amountDue')}
+                    >
+                      <div className="flex items-center gap-1">
+                        Solde dû
+                        {sortField === 'amountDue' && (
+                          <span>{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                        )}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Statut
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredInvoices.map(invoice => {
+                    const isOverdue = invoice.status === 'overdue';
+                    const dueDate = new Date(invoice.dueDate);
+                    const today = new Date();
+                    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    return (
+                      <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedInvoices.includes(invoice.id)}
+                            onChange={() => toggleSelectInvoice(invoice.id)}
+                            className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                          />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900">{invoice.invoiceNumber}</div>
+                          <div className="text-sm text-gray-500 truncate max-w-xs">{invoice.title}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900">{invoice.clientName}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {formatDate(invoice.issueDate)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`${isOverdue ? 'text-red-600 font-medium' : daysUntilDue <= 7 && invoice.status !== 'paid' && invoice.status !== 'cancelled' ? 'text-yellow-600' : ''}`}>
+                            {formatDate(invoice.dueDate)}
+                            {isOverdue && invoice.daysOverdue && (
+                              <div className="text-xs text-red-500 mt-1">+{invoice.daysOverdue} jours</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap font-medium">
+                          {formatCurrency(invoice.total)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`font-medium ${invoice.amountDue > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {formatCurrency(invoice.amountDue)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusClass(invoice.status)}`}>
+                            {getStatusLabel(invoice.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
                             <button 
-                              className="action-btn send-btn"
-                              title="Envoyer"
-                              onClick={() => sendInvoice(invoice)}
+                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Voir"
+                              onClick={() => viewInvoice(invoice)}
                             >
-                              <svg viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
-                              </svg>
+                              👁️
                             </button>
-                          )}
-                          {(invoice.status === 'pending' || invoice.status === 'overdue' || invoice.status === 'partial') && (
                             <button 
-                              className="action-btn payment-btn"
+                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               title="Enregistrer paiement"
                               onClick={() => recordPayment(invoice)}
                             >
-                              <svg viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M20,8H22V10H20M20,12H22V14H20M20,16H22V18H20M18,8H16V6H14V8H12V10H14V12H12V14H14V16H16V14H18V16H16V12H18V10H16V8M2,12C2,9.21 3.64,6.8 6,5.68V3.5C2.5,4.76 0,8.09 0,12C0,15.91 2.5,19.24 6,20.5V18.32C3.64,17.2 2,14.79 2,12M15,3C10.04,3 6,7.04 6,12C6,16.96 10.04,21 15,21C19.96,21 24,16.96 24,12C24,7.04 19.96,3 15,3M15,19C11.14,19 8,15.86 8,12C8,8.14 11.14,5 15,5C18.86,5 22,8.14 22,12C22,15.86 18.86,19 15,19Z" />
-                              </svg>
+                              💰
                             </button>
-                          )}
-                          {(invoice.status === 'pending' || invoice.status === 'overdue') && (
                             <button 
-                              className="action-btn reminder-btn"
-                              title="Envoyer rappel"
-                              onClick={() => sendReminder(invoice)}
+                              className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                              title="Dupliquer"
+                              onClick={() => duplicateInvoice(invoice.id)}
                             >
-                              <svg viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22A9,9 0 0,0 21,13A9,9 0 0,0 12,4M12.5,8H11V14L15.75,16.85L16.5,15.62L12.5,13.25V8M7.88,3.39L6.6,1.86L2,5.71L3.29,7.24L7.88,3.39M22,5.72L17.4,1.86L16.11,3.39L20.71,7.25L22,5.72Z" />
-                              </svg>
+                              📋
                             </button>
-                          )}
-                          <button 
-                            className="action-btn duplicate-btn"
-                            title="Dupliquer"
-                            onClick={() => duplicateInvoice(invoice.id)}
-                          >
-                            <svg viewBox="0 0 24 24">
-                              <path fill="currentColor" d="M11,17H4C2.89,17 2,16.1 2,15V3C2,1.89 2.89,1 4,1H16C17.1,1 18,1.9 18,3V9H16V3H4V15H11V17M20,5H16C14.89,5 14,5.9 14,7V21C14,22.1 14.89,23 16,23H20C21.1,23 22,22.1 22,21V7C22,5.9 21.1,5 20,5M20,21H16V7H20V21Z" />
-                            </svg>
-                          </button>
-                          <button 
-                            className="action-btn delete-btn"
-                            title="Supprimer"
-                            onClick={() => confirmDeleteInvoice(invoice.id)}
-                          >
-                            <svg viewBox="0 0 24 24">
-                              <path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                            <button 
+                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Supprimer"
+                              onClick={() => confirmDeleteInvoice(invoice.id)}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Pagination */}
-        {filteredInvoices.length > 0 && (
-          <div className="pagination">
-            <div className="pagination-info">
-              Affichage de 1 à {filteredInvoices.length} sur {filteredInvoices.length} factures
-            </div>
-            <div className="pagination-controls">
-              <button className="pagination-btn" disabled>
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" />
-                </svg>
-              </button>
-              <button className="pagination-btn active">1</button>
-              <button className="pagination-btn" disabled>
-                <svg viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Statistiques */}
-      <div className="stats-section">
-        <h3>Statistiques financières</h3>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-value">{formatCurrency(stats.totalAmount)}</div>
-            <div className="stat-label">Chiffre d'affaires total</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{formatCurrency(stats.totalPaid)}</div>
-            <div className="stat-label">Montant encaissé</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{formatCurrency(stats.totalDue)}</div>
-            <div className="stat-label">En attente de paiement</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{formatCurrency(stats.overdueAmount)}</div>
-            <div className="stat-label">En retard ({stats.overdueInvoices})</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{invoices.filter(i => i.status === 'draft').length}</div>
-            <div className="stat-label">Factures brouillons</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{((stats.totalPaid / stats.totalAmount) * 100).toFixed(1)}%</div>
-            <div className="stat-label">Taux d'encaissement</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tableau de bord rapide */}
-      <div className="dashboard-section">
-        <h3>Tableau de bord facturation</h3>
-        <div className="dashboard-cards">
-          <div className="dashboard-card">
-            <h4>Factures à envoyer</h4>
-            <div className="card-content">
-              <div className="card-value">{invoices.filter(i => i.status === 'draft').length}</div>
-              <button className="btn btn-small" onClick={() => setStatusFilter('draft')}>Voir</button>
-            </div>
-          </div>
-          <div className="dashboard-card">
-            <h4>Factures en attente</h4>
-            <div className="card-content">
-              <div className="card-value">{invoices.filter(i => i.status === 'pending').length}</div>
-              <button className="btn btn-small" onClick={() => setStatusFilter('pending')}>Voir</button>
-            </div>
-          </div>
-          <div className="dashboard-card">
-            <h4>Factures en retard</h4>
-            <div className="card-content">
-              <div className="card-value">{stats.overdueInvoices}</div>
-              <button className="btn btn-small btn-warning" onClick={() => setStatusFilter('overdue')}>Relancer</button>
-            </div>
-          </div>
-          <div className="dashboard-card">
-            <h4>Prochaines échéances</h4>
-            <div className="card-content">
-              <div className="card-value">
-                {invoices.filter(i => {
-                  const dueDate = new Date(i.dueDate);
-                  const today = new Date();
-                  const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                  return daysUntilDue >= 0 && daysUntilDue <= 7 && i.status !== 'paid' && i.status !== 'cancelled';
-                }).length}
+            {/* Pagination */}
+            <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-500">
+                Affichage de 1 à {filteredInvoices.length} sur {filteredInvoices.length} factures
               </div>
-              <button className="btn btn-small" onClick={() => setDateFilter('dueSoon')}>Voir</button>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  ← Précédent
+                </button>
+                <button className="px-3 py-1.5 bg-blue-500 text-white rounded-lg">1</button>
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                  Suivant →
+                </button>
+              </div>
             </div>
+          </>
+        )}
+      </div>
+
+      {/* Dashboard rapide */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+          <h3 className="font-semibold text-gray-700 mb-3">Factures à envoyer</h3>
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold text-gray-800">
+              {invoices.filter(i => i.status === 'draft').length}
+            </span>
+            <button 
+              className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+              onClick={() => setStatusFilter('draft')}
+            >
+              Voir
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+          <h3 className="font-semibold text-gray-700 mb-3">Factures en attente</h3>
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold text-gray-800">
+              {invoices.filter(i => i.status === 'pending').length}
+            </span>
+            <button 
+              className="px-3 py-1.5 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition-colors text-sm"
+              onClick={() => setStatusFilter('pending')}
+            >
+              Voir
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+          <h3 className="font-semibold text-gray-700 mb-3">Factures en retard</h3>
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold text-red-600">{stats.overdueInvoices}</span>
+            <button 
+              className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm"
+              onClick={() => setStatusFilter('overdue')}
+            >
+              Relancer
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
+          <h3 className="font-semibold text-gray-700 mb-3">Prochaines échéances</h3>
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold text-gray-800">
+              {invoices.filter(i => {
+                const dueDate = new Date(i.dueDate);
+                const today = new Date();
+                const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                return daysUntilDue >= 0 && daysUntilDue <= 7 && i.status !== 'paid' && i.status !== 'cancelled';
+              }).length}
+            </span>
+            <button 
+              className="px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm"
+              onClick={() => setDateFilter('dueSoon')}
+            >
+              Voir
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Modal de visualisation de facture */}
+      {showViewModal && currentInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">Facture {currentInvoice.invoiceNumber}</h2>
+                <div className="flex items-center gap-3 mt-2">
+                  <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusClass(currentInvoice.status)}`}>
+                    {getStatusLabel(currentInvoice.status)}
+                  </span>
+                  <span className="text-gray-500">• Client: {currentInvoice.clientName}</span>
+                </div>
+              </div>
+              <button 
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => setShowViewModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-700 mb-3">Émetteur</h4>
+                  <p className="font-medium">Votre Entreprise SARL</p>
+                  <p className="text-gray-600">123 Avenue des affaires</p>
+                  <p className="text-gray-600">75008 Paris, France</p>
+                  <p className="text-gray-600">SIRET: 123 456 789 00012</p>
+                  <p className="text-gray-600">contact@votresociete.com</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-700 mb-3">Client</h4>
+                  <p className="font-medium">{currentInvoice.clientName}</p>
+                  <p className="text-gray-600">{demoClients.find(c => c.id === currentInvoice.clientId)?.address}</p>
+                  <p className="text-gray-600">{demoClients.find(c => c.id === currentInvoice.clientId)?.email}</p>
+                  <p className="text-gray-600">{demoClients.find(c => c.id === currentInvoice.clientId)?.phone}</p>
+                </div>
+                
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-700 mb-3">Informations</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Date d'émission:</span>
+                      <span className="font-medium">{formatDate(currentInvoice.issueDate)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Date d'échéance:</span>
+                      <span className="font-medium">{formatDate(currentInvoice.dueDate)}</span>
+                    </div>
+                    {currentInvoice.paymentDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Date de paiement:</span>
+                        <span className="font-medium">{formatDate(currentInvoice.paymentDate)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-gray-50 px-6 py-3 grid grid-cols-4 gap-4">
+                  <div className="font-medium text-gray-700">Description</div>
+                  <div className="font-medium text-gray-700">Quantité</div>
+                  <div className="font-medium text-gray-700">Prix unitaire</div>
+                  <div className="font-medium text-gray-700">Total</div>
+                </div>
+                <div className="divide-y divide-gray-200">
+                  {currentInvoice.items.map((item, index) => (
+                    <div key={index} className="px-6 py-4 grid grid-cols-4 gap-4">
+                      <div>{item.description}</div>
+                      <div>{item.quantity}</div>
+                      <div>{formatCurrency(item.unitPrice)}</div>
+                      <div className="font-medium">{formatCurrency(item.total)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-gray-50 px-6 py-4 space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Sous-total:</span>
+                    <span className="font-medium">{formatCurrency(currentInvoice.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">TVA ({currentInvoice.taxRate}%):</span>
+                    <span className="font-medium">{formatCurrency(currentInvoice.taxAmount)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t border-gray-300 pt-3">
+                    <span>Total TTC:</span>
+                    <span className="text-blue-600">{formatCurrency(currentInvoice.total)}</span>
+                  </div>
+                  <div className="flex justify-between pt-3">
+                    <span className="text-gray-600">Montant payé:</span>
+                    <span className="font-medium text-green-600">{formatCurrency(currentInvoice.amountPaid)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Solde dû:</span>
+                    <span className={`font-medium ${currentInvoice.amountDue > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
+                      {formatCurrency(currentInvoice.amountDue)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200 flex flex-wrap gap-3">
+              <button 
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                onClick={() => setShowViewModal(false)}
+              >
+                Fermer
+              </button>
+              <button 
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center gap-2"
+                onClick={() => showToast('PDF généré avec succès!')}
+              >
+                📄 Télécharger PDF
+              </button>
+              {currentInvoice.status === 'draft' && (
+                <button 
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                  onClick={() => sendInvoice(currentInvoice)}
+                >
+                  Envoyer la facture
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de suppression */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="text-5xl mb-4">🗑️</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Supprimer la facture</h3>
+              <p className="text-gray-600">Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible.</p>
+            </div>
+            <div className="flex justify-center gap-3">
+              <button 
+                className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Annuler
+              </button>
+              <button 
+                className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                onClick={deleteInvoice}
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

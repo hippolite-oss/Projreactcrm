@@ -1,26 +1,25 @@
-import { IsString, IsNumber, IsOptional, IsNotEmpty, MaxLength, Min, IsEnum, IsUrl } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsNotEmpty, MaxLength, Min, IsEnum, IsUrl, IsBoolean } from 'class-validator';
 import { ProductUnit } from '../entities/product.entity';
 
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
+  @MaxLength(255)
   name: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(500)
   description?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(100)
-  brand?: string; // Marque
+  brand?: string;
 
   @IsString()
   @IsOptional()
-  @IsUrl()
-  image?: string; // URL de l'image
+  @MaxLength(100)
+  model?: string;
 
   @IsString()
   @IsOptional()
@@ -31,10 +30,20 @@ export class CreateProductDto {
   @Min(0)
   price: number;
 
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @IsOptional()
+  originalPrice?: number;
+
   @IsNumber()
   @Min(0)
   @IsOptional()
   stockQuantity?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  minStockLevel?: number;
 
   @IsEnum(ProductUnit)
   @IsOptional()
@@ -45,8 +54,35 @@ export class CreateProductDto {
   @MaxLength(100)
   category?: string;
 
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  subcategory?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  active?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isNew?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isPromotion?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @IsUrl()
+  @MaxLength(500)
+  imageUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  specifications?: string;
+
   @IsNumber()
   @Min(0)
   @IsOptional()
-  minStockLevel?: number;
+  warrantyMonths?: number;
 }

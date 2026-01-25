@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test jsPDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <h1>Test jsPDF</h1>
+    <button onclick="generatePDF()">Générer PDF Test</button>
+    
+    <script>
+        function generatePDF() {
+            try {
+                console.log('🔄 Test jsPDF...');
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Test basique
+                doc.setFontSize(20);
+                doc.text('Test PDF - DIGIDEV CRM', 20, 25);
+                
+                doc.setFontSize(12);
+                doc.text('Test de génération PDF avec jsPDF', 20, 40);
+                
+                // Test tableau
+                const tableData = [
+                    ['Indicateur', 'Valeur'],
+                    ['Chiffre d\'Affaires', '125 000 €'],
+                    ['Clients', '156'],
+                    ['Commandes', '342']
+                ];
+                
+                doc.autoTable({
+                    startY: 60,
+                    head: [tableData[0]],
+                    body: tableData.slice(1),
+                    theme: 'grid'
+                });
+                
+                // Sauvegarde
+                doc.save('test-jspdf.pdf');
+                console.log('✅ PDF généré avec succès !');
+                
+            } catch (error) {
+                console.error('❌ Erreur jsPDF:', error);
+                alert('Erreur: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

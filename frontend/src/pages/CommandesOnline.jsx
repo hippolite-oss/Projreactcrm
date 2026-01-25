@@ -422,66 +422,68 @@ const CommandesOnline = () => {
           )}
         </div>
 
-        {/* Modal Détails */}
+        {/* Modal Détails optimisé */}
         {showDetailModal && selectedCommande && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-2xl w-full p-10 border border-purple-200 dark:border-purple-800"
+              className="bg-white dark:bg-zinc-900 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-lg sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-purple-200 dark:border-purple-800"
             >
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-3xl font-bold text-purple-700 dark:text-purple-300 flex items-center gap-4">
-                  <ShoppingBag className="w-10 h-10" />
-                  Détails de la commande
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-zinc-800">
+                <h3 className="text-lg sm:text-2xl font-bold text-purple-700 dark:text-purple-300 flex items-center gap-2 sm:gap-3">
+                  <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <span className="hidden sm:inline">Détails de la commande</span>
+                  <span className="sm:hidden">Commande</span>
                 </h3>
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="p-3 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-full transition"
+                  className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-full transition"
                 >
-                  <X className="w-8 h-8 text-gray-500" />
+                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
                 </button>
               </div>
 
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 sm:p-6 space-y-4">
+                {/* Informations principales compactes */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Nom</p>
-                    <p className="text-xl font-semibold">{selectedCommande.nom}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Nom</p>
+                    <p className="text-lg font-semibold">{selectedCommande.nom}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Téléphone</p>
-                    <p className="text-xl font-semibold">{selectedCommande.telephone}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                    <p className="text-lg">{selectedCommande.email || '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Ville</p>
-                    <p className="text-lg">{selectedCommande.ville}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Téléphone</p>
+                    <p className="text-lg font-semibold">{selectedCommande.telephone}</p>
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Adresse</p>
-                  <p className="text-lg">{selectedCommande.adresse}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                    <p className="text-sm truncate">{selectedCommande.email || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Ville</p>
+                    <p className="text-sm">{selectedCommande.ville}</p>
+                  </div>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Commande</p>
-                  <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-2xl mt-2 whitespace-pre-line text-lg leading-relaxed">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Adresse</p>
+                  <p className="text-sm">{selectedCommande.adresse}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Commande</p>
+                  <div className="bg-gray-50 dark:bg-zinc-800 p-3 sm:p-4 rounded-lg mt-1 text-sm leading-relaxed max-h-32 overflow-y-auto">
                     {selectedCommande.commande}
                   </div>
                 </div>
 
                 {selectedCommande.notes && (
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Notes</p>
-                    <div className="bg-gray-50 dark:bg-zinc-800 p-6 rounded-2xl mt-2 whitespace-pre-line text-lg leading-relaxed">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Notes</p>
+                    <div className="bg-gray-50 dark:bg-zinc-800 p-3 sm:p-4 rounded-lg mt-1 text-sm leading-relaxed max-h-24 overflow-y-auto">
                       {selectedCommande.notes}
                     </div>
                   </div>
@@ -489,61 +491,60 @@ const CommandesOnline = () => {
 
                 {selectedCommande.notes_admin && (
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Notes administrateur</p>
-                    <div className="bg-blue-50 dark:bg-blue-900/30 p-6 rounded-2xl mt-2 whitespace-pre-line text-lg leading-relaxed">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Notes administrateur</p>
+                    <div className="bg-blue-50 dark:bg-blue-900/30 p-3 sm:p-4 rounded-lg mt-1 text-sm leading-relaxed max-h-24 overflow-y-auto">
                       {selectedCommande.notes_admin}
                     </div>
                   </div>
                 )}
 
-                <div className="pt-6 border-t border-gray-200 dark:border-zinc-800">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Statut</p>
-                  <div className="mt-2">
+                <div className="pt-3 border-t border-gray-200 dark:border-zinc-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Statut</p>
                     {getStatutBadge(selectedCommande.statut)}
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Créée le {formatDate(selectedCommande.createdAt || selectedCommande.date_creation)}
                   </p>
                   
-                  {/* Informations sur les emails */}
+                  {/* Informations sur les emails compactes */}
                   {selectedCommande.email && (
-                    <div className="mt-4 space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
+                    <div className="mt-3 space-y-1">
+                      <div className="flex items-center gap-2 text-xs">
                         {selectedCommande.email_reception_envoye ? (
-                          <MailCheck className="w-4 h-4 text-green-600" />
+                          <MailCheck className="w-3 h-3 text-green-600" />
                         ) : (
-                          <MailX className="w-4 h-4 text-gray-400" />
+                          <MailX className="w-3 h-3 text-gray-400" />
                         )}
                         <span className={selectedCommande.email_reception_envoye ? 'text-green-600' : 'text-gray-500'}>
-                          Email de réception {selectedCommande.email_reception_envoye ? 'envoyé' : 'non envoyé'}
+                          Email réception {selectedCommande.email_reception_envoye ? 'envoyé' : 'non envoyé'}
                         </span>
                         {selectedCommande.date_email_reception && (
                           <span className="text-gray-400">
                             le {formatDate(selectedCommande.date_email_reception)}
                           </span>
                         )}
-                        {/* Bouton pour envoyer l'email de réception depuis le modal */}
                         {!selectedCommande.email_reception_envoye && (
                           <button
                             onClick={() => {
                               handleEnvoyerEmailReception(selectedCommande.id || selectedCommande._id);
                               setShowDetailModal(false);
                             }}
-                            className="ml-2 px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition"
+                            className="ml-auto px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition"
                           >
                             Envoyer
                           </button>
                         )}
                       </div>
                       
-                      <div className="flex items-center gap-2 text-sm">
+                      <div className="flex items-center gap-2 text-xs">
                         {selectedCommande.email_traitement_envoye ? (
-                          <MailCheck className="w-4 h-4 text-green-600" />
+                          <MailCheck className="w-3 h-3 text-green-600" />
                         ) : (
-                          <MailX className="w-4 h-4 text-gray-400" />
+                          <MailX className="w-3 h-3 text-gray-400" />
                         )}
                         <span className={selectedCommande.email_traitement_envoye ? 'text-green-600' : 'text-gray-500'}>
-                          Email de traitement {selectedCommande.email_traitement_envoye ? 'envoyé' : 'non envoyé'}
+                          Email traitement {selectedCommande.email_traitement_envoye ? 'envoyé' : 'non envoyé'}
                         </span>
                         {selectedCommande.date_email_traitement && (
                           <span className="text-gray-400">
@@ -556,10 +557,10 @@ const CommandesOnline = () => {
                 </div>
               </div>
 
-              <div className="mt-10 flex gap-4">
+              <div className="p-4 sm:p-6 border-t border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="flex-1 py-5 bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 rounded-2xl font-bold text-xl transition"
+                  className="w-full sm:flex-1 py-2.5 bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 rounded-lg font-medium text-sm transition"
                 >
                   Fermer
                 </button>
@@ -570,10 +571,11 @@ const CommandesOnline = () => {
                       handleMarquerLu(selectedCommande.id || selectedCommande._id);
                       setShowDetailModal(false);
                     }}
-                    className="flex-1 py-5 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-2xl font-bold text-xl shadow-xl transition flex items-center justify-center gap-3"
+                    className="w-full sm:flex-1 py-2.5 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg font-medium shadow-lg transition flex items-center justify-center gap-2 text-sm"
                   >
-                    <CheckCircle className="w-7 h-7" />
-                    Marquer comme lu
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="hidden sm:inline">Marquer comme lu</span>
+                    <span className="sm:hidden">Marquer lu</span>
                   </button>
                 )}
               </div>

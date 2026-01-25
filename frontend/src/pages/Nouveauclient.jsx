@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X, User, Mail, Phone, MapPin, Globe, Loader2, AlertCircle } from 'lucide-react';
 import api from '../services/api';
-import './Nouveauclient.css';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const Nouveauclient = ({ onClientAdded, onClose }) => {
   const navigate = useNavigate();
+  const { showToast } = useNotifications();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -69,6 +71,8 @@ const Nouveauclient = ({ onClientAdded, onClose }) => {
         onClientAdded(newClient);
       }
       
+      showToast('Client ajouté avec succès', 'success');
+      
       // Réinitialiser le formulaire
       setFormData({
         name: '',
@@ -89,10 +93,12 @@ const Nouveauclient = ({ onClientAdded, onClose }) => {
       
     } catch (error) {
       console.error('Erreur:', error);
+      const errorMessage = error.response?.data?.message || 'Erreur lors de l\'ajout du client';
       setErrors(prev => ({
         ...prev,
-        submit: error.response?.data?.message || 'Erreur lors de l\'ajout du client. Veuillez réessayer.'
+        submit: errorMessage
       }));
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -112,116 +118,158 @@ const Nouveauclient = ({ onClientAdded, onClose }) => {
   };
 
   return (
-    <div className="nouveau-client-container">
-      <div className="nouveau-client-card">
-        <div className="nouveau-client-header">
-          <h2>Nouveau Client</h2>
-          {onClose && (
-            <button className="close-btn" onClick={onClose} aria-label="Fermer">
-              ×
-            </button>
-          )}
-        </div>
-        
-        {errors.submit && (
-          <div className="error-message submit-error">
-            {errors.submit}
+    <div className="w-full max-w-md sm:max-w-lg mx-auto">
+      {/* Header compact */}
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+            <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+            <span className="hidden sm:inline">Nouveau Client</span>
+            <span className="sm:hidden">Nouveau</span>
+          </h2>
+        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Fermer"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+          </button>
         )}
-        
-        <form onSubmit={handleSubmit} className="nouveau-client-form">
-          <div className="form-group">
-            <label htmlFor="name">
-              Nom <span className="required">*</span>
-            </label>
+      </div>
+      
+      {/* Message d'erreur global */}
+      {errors.submit && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-red-800">{errors.submit}</p>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Nom (obligatoire) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Nom <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={errors.name ? 'error' : ''}
-              placeholder="Entrez le nom du client"
+              className={`w-full pl-10 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                errors.name 
+                  ? 'border-red-300 bg-red-50 focus:ring-red-500' 
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+              placeholder="Nom du client"
               required
             />
-            {errors.name && <span className="error-text">{errors.name}</span>}
           </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
+          {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+        </div>
+        
+        {/* Email et Téléphone */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="email"
-                id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={errors.email ? 'error' : ''}
-                placeholder="exemple@email.com"
+                className={`w-full pl-10 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  errors.email 
+                    ? 'border-red-300 bg-red-50 focus:ring-red-500' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                placeholder="email@exemple.com"
               />
-              {errors.email && <span className="error-text">{errors.email}</span>}
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="phone">Téléphone</label>
+            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="tel"
-                id="phone"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className={errors.phone ? 'error' : ''}
+                className={`w-full pl-10 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  errors.phone 
+                    ? 'border-red-300 bg-red-50 focus:ring-red-500' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
                 placeholder="+33 1 23 45 67 89"
               />
-              {errors.phone && <span className="error-text">{errors.phone}</span>}
             </div>
+            {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
           </div>
-          
-          <div className="form-group">
-            <label htmlFor="address">Adresse</label>
+        </div>
+        
+        {/* Adresse */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              id="address"
               name="address"
               value={formData.address}
               onChange={handleChange}
+              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all"
               placeholder="Numéro et rue"
             />
           </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="city">Ville</label>
-              <input
-                type="text"
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="Paris"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="postalCode">Code postal</label>
-              <input
-                type="text"
-                id="postalCode"
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={handleChange}
-                placeholder="75000"
-              />
-            </div>
+        </div>
+        
+        {/* Ville et Code postal */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all"
+              placeholder="Paris"
+            />
           </div>
           
-          <div className="form-group">
-            <label htmlFor="country">Pays</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Code postal</label>
+            <input
+              type="text"
+              name="postalCode"
+              value={formData.postalCode}
+              onChange={handleChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all"
+              placeholder="75000"
+            />
+          </div>
+        </div>
+        
+        {/* Pays */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Pays</label>
+          <div className="relative">
+            <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <select
-              id="country"
               name="country"
               value={formData.country}
               onChange={handleChange}
+              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all appearance-none bg-white"
             >
               <option value="">Sélectionnez un pays</option>
               <option value="France">France</option>
@@ -232,39 +280,44 @@ const Nouveauclient = ({ onClientAdded, onClose }) => {
               <option value="Autre">Autre</option>
             </select>
           </div>
-          
-          <div className="form-actions">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="btn-secondary"
-              disabled={isSubmitting}
-            >
-              Réinitialiser
-            </button>
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="spinner"></span>
-                  Ajout en cours...
-                </>
-              ) : (
-                'Ajouter le client'
-              )}
-            </button>
-          </div>
-        </form>
-        
-        <div className="form-footer">
-          <p className="note">
-            <span className="required">*</span> Champs obligatoires
-          </p>
         </div>
-      </div>
+        
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="w-full sm:flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors text-sm disabled:opacity-50"
+            disabled={isSubmitting}
+          >
+            Réinitialiser
+          </button>
+          <button
+            type="submit"
+            className="w-full sm:flex-1 py-2.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-md hover:shadow-lg"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="hidden sm:inline">Ajout en cours...</span>
+                <span className="sm:hidden">Ajout...</span>
+              </>
+            ) : (
+              <>
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">Ajouter le client</span>
+                <span className="sm:hidden">Ajouter</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+      
+      {/* Note */}
+      <p className="mt-4 text-xs text-gray-500 text-center">
+        <span className="text-red-500">*</span> Champs obligatoires
+      </p>
     </div>
   );
 };

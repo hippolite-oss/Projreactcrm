@@ -13,6 +13,8 @@ import { CommandesOnlineModule } from './commandes-online/commandes-online.modul
 import { ProspectsModule } from './prospects/prospects.module';
 import { EmailModule } from './email/email.module';
 import { ParametresModule } from './parametres/parametres.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ReportsModule } from './reports/reports.module';
 import { entities } from './entities';
 
 @Module({
@@ -43,6 +45,8 @@ import { entities } from './entities';
     ProspectsModule,
     EmailModule,
     ParametresModule,
+    CategoriesModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

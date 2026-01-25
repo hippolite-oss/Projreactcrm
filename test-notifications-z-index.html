@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Z-Index Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        /* Simulation de la topbar */
+        .topbar-simulation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+        
+        .topbar-simulation h1 {
+            color: #2563eb;
+            margin: 0;
+        }
+        
+        /* Simulation de notification avec z-index élevé */
+        .notification-high {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        /* Simulation de notification avec z-index faible */
+        .notification-low {
+            position: fixed;
+            top: 140px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 50;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .content {
+            margin-top: 100px;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #2563eb;
+        }
+        
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <!-- Simulation de la topbar -->
+    <div class="topbar-simulation">
+        <h1>CRM - Simulation Topbar (z-index: 100)</h1>
+    </div>
+    
+    <!-- Notifications de test -->
+    <div id="notification-high" class="notification-high" style="display: none;">
+        ✅ Notification avec z-index: 9999 (VISIBLE)
+    </div>
+    
+    <div id="notification-low" class="notification-low" style="display: none;">
+        ❌ Notification avec z-index: 50 (CACHÉE)
+    </div>
+    
+    <div class="content">
+        <h1>🧪 Test Z-Index des Notifications</h1>
+        
+        <div class="test-section">
+            <h2>🎯 Objectif du Test</h2>
+            <p>Vérifier que les notifications apparaissent au-dessus de la topbar (z-index: 100)</p>
+            
+            <h3>Tests Disponibles :</h3>
+            <button onclick="showHighNotification()">Notification z-index: 9999 (Correct)</button>
+            <button onclick="showLowNotification()">Notification z-index: 50 (Incorrect)</button>
+            <button onclick="hideNotifications()">Masquer toutes</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Résultats Attendus</h2>
+            <ul>
+                <li class="success">✅ Notification z-index: 9999 → Visible au-dessus de la topbar</li>
+                <li class="error">❌ Notification z-index: 50 → Cachée derrière la topbar</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 Solution Appliquée</h2>
+            <p>Dans le code React :</p>
+            <pre style="background: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto;">
+// AVANT (problématique)
+className="... z-50 ..."  // z-index: 50
+
+// APRÈS (corrigé)
+className="... z-[9999] ..."  // z-index: 9999
+            </pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎨 Hiérarchie Z-Index</h2>
+            <ul>
+                <li><strong>Notifications Toast :</strong> z-index: 9999</li>
+                <li><strong>Menus Dropdown :</strong> z-index: 9998</li>
+                <li><strong>Modales :</strong> z-index: 1000</li>
+                <li><strong>Topbar :</strong> z-index: 100</li>
+                <li><strong>Sidebar :</strong> z-index: 50</li>
+                <li><strong>Contenu :</strong> z-index: 1 (par défaut)</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>✅ Vérification dans l'Application</h2>
+            <p>Pour tester dans l'application réelle :</p>
+            <ol>
+                <li>Allez sur <a href="http://localhost:1573" target="_blank">http://localhost:1573</a></li>
+                <li>Connectez-vous avec admin@test.com / admin123</li>
+                <li>Allez sur la page "Rapports"</li>
+                <li>Cliquez sur "Export PDF" ou "Tests"</li>
+                <li>Vérifiez que la notification apparaît au-dessus de la topbar</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function showHighNotification() {
+            hideNotifications();
+            document.getElementById('notification-high').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('notification-high').style.display = 'none';
+            }, 3000);
+        }
+        
+        function showLowNotification() {
+            hideNotifications();
+            document.getElementById('notification-low').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('notification-low').style.display = 'none';
+            }, 3000);
+        }
+        
+        function hideNotifications() {
+            document.getElementById('notification-high').style.display = 'none';
+            document.getElementById('notification-low').style.display = 'none';
+        }
+        
+        // Test automatique au chargement
+        window.onload = function() {
+            console.log('🧪 Test Z-Index chargé');
+            console.log('Topbar z-index: 100');
+            console.log('Notification haute z-index: 9999');
+            console.log('Notification basse z-index: 50');
+        };
+    </script>
+</body>
+</html>

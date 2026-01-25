@@ -19,9 +19,22 @@ export enum ProductUnit {
   LITER = 'liter',
 }
 
+export enum ProductCategory {
+  SMARTPHONES = 'Smartphones & Tablettes',
+  COMPUTERS = 'Ordinateurs & Laptops',
+  AUDIO = 'Audio & Accessoires',
+  TV_SCREENS = 'TV & Écrans',
+  APPLIANCES = 'Électroménager',
+  COMPONENTS = 'Composants & Pièces',
+  CABLES = 'Câbles & Chargeurs',
+  GAMING = 'Gaming & Consoles',
+}
+
 @Entity('products')
 @Index(['name'])
 @Index(['active'])
+@Index(['category'])
+@Index(['brand'])
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
@@ -53,6 +66,15 @@ export class Product {
   @Column({ nullable: true, length: 100 })
   category: string;
 
+  @Column({ nullable: true, length: 100 })
+  subcategory: string; // Sous-catégorie
+
+  @Column({ nullable: true, length: 100 })
+  brand: string; // Marque
+
+  @Column({ nullable: true, length: 100 })
+  model: string; // Modèle
+
   @Column({ nullable: true, length: 50 })
   sku: string; // Code produit
 
@@ -62,8 +84,35 @@ export class Product {
   @Column({ type: 'int', nullable: true })
   minStockLevel: number; // Seuil d'alerte stock
 
+  @Column({ 
+    type: 'decimal', 
+    precision: 10, 
+    scale: 2,
+    nullable: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    }
+  })
+  originalPrice: number; // Prix original (pour promotions)
+
   @Column({ default: true })
   active: boolean;
+
+  @Column({ default: false })
+  isNew: boolean; // Nouveau produit
+
+  @Column({ default: false })
+  isPromotion: boolean; // En promotion
+
+  @Column({ nullable: true, length: 500 })
+  imageUrl: string; // URL de l'image principale
+
+  @Column({ type: 'text', nullable: true })
+  specifications: string; // Spécifications techniques (JSON)
+
+  @Column({ type: 'int', nullable: true })
+  warrantyMonths: number; // Garantie en mois
 
   // Relations
   @OneToMany(() => QuoteItem, (quoteItem) => quoteItem.product)
@@ -81,6 +130,19 @@ export class Product {
   // Méthode utilitaire pour vérifier le stock faible
   get isLowStock(): boolean {
     return this.minStockLevel ? this.stockQuantity <= this.minStockLevel : false;
+  }
+
+  // Méthode pour obtenir le prix effectif (avec promotion)
+  get effectivePrice(): number {
+    return this.isPromotion && this.originalPrice ? this.price : this.price;
+  }
+
+  // Méthode pour calculer le pourcentage de réduction
+  get discountPercentage(): number {
+    if (this.isPromotion && this.originalPrice && this.originalPrice > this.price) {
+      return Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+    }
+    return 0;
   }
 }
 

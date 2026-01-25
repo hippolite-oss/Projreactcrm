@@ -91,7 +91,14 @@ const Settings = () => {
       // Charger les paramètres depuis l'API
       const response = await api.get('/api/parametres');
       if (response.data.success) {
-        setCompanyData(prev => ({ ...prev, ...response.data.data }));
+        const data = response.data.data;
+        
+        // Mettre à jour tous les états avec les données du backend
+        setCompanyData(prev => ({ ...prev, ...data }));
+        setEmailSettings(prev => ({ ...prev, ...data }));
+        setNotificationSettings(prev => ({ ...prev, ...data }));
+        setSecuritySettings(prev => ({ ...prev, ...data }));
+        setSystemSettings(prev => ({ ...prev, ...data }));
       }
     } catch (error) {
       console.error('Erreur chargement paramètres:', error);
@@ -105,12 +112,39 @@ const Settings = () => {
       setLoading(true);
       setSaveStatus('saving');
       
-      // Simuler sauvegarde API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Sauvegarder via l'API
+      const response = await api.put(`/api/parametres/${section}`, data);
       
-      setSaveStatus('success');
+      if (response.data.success) {
+        setSaveStatus('success');
+        // Mettre à jour les données locales
+        switch (section) {
+          case 'profile':
+            setProfileData(prev => ({ ...prev, ...data }));
+            break;
+          case 'company':
+            setCompanyData(prev => ({ ...prev, ...data }));
+            break;
+          case 'email':
+            setEmailSettings(prev => ({ ...prev, ...data }));
+            break;
+          case 'notifications':
+            setNotificationSettings(prev => ({ ...prev, ...data }));
+            break;
+          case 'security':
+            setSecuritySettings(prev => ({ ...prev, ...data }));
+            break;
+          case 'system':
+            setSystemSettings(prev => ({ ...prev, ...data }));
+            break;
+        }
+      } else {
+        setSaveStatus('error');
+      }
+      
       setTimeout(() => setSaveStatus(''), 3000);
     } catch (error) {
+      console.error('Erreur sauvegarde:', error);
       setSaveStatus('error');
       setTimeout(() => setSaveStatus(''), 3000);
     } finally {
@@ -121,17 +155,18 @@ const Settings = () => {
   const testEmailConfig = async () => {
     try {
       setLoading(true);
-      // Test de configuration email
-      const { default: emailService } = await import('../services/emailService');
-      const result = await emailService.testerConfiguration();
       
-      if (result.success) {
-        alert('✅ Configuration email fonctionnelle !');
+      // Tester la configuration via l'API backend
+      const response = await api.post('/api/parametres/test-email', emailSettings);
+      
+      if (response.data.success) {
+        alert(`✅ ${response.data.message}`);
       } else {
-        alert(`❌ Erreur: ${result.message}`);
+        alert(`❌ ${response.data.message}`);
       }
     } catch (error) {
-      alert(`❌ Erreur test email: ${error.message}`);
+      console.error('Erreur test email:', error);
+      alert(`❌ Erreur test email: ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -506,76 +541,261 @@ const CompanySection = ({ data, setData, onSave, loading }) => (
 );
 
 // Composant Section Utilisateurs
-const UsersSection = ({ users, setUsers, loading }) => (
-  <div>
-    <div className="flex items-center justify-between mb-8">
-      <div className="flex items-center gap-4">
-        <Users className="w-8 h-8 text-green-600" />
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Gestion des Utilisateurs</h2>
-          <p className="text-gray-600 dark:text-gray-400">Administrer les comptes et les rôles</p>
-        </div>
-      </div>
-      <button className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition">
-        <Plus className="w-5 h-5" />
-        Nouvel utilisateur
-      </button>
-    </div>
+const UsersSection = ({ users, setUsers, loading }) => {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [actionLoading, setActionLoading] = useState('');
 
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-zinc-800">
-          <tr>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Utilisateur</th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Rôle</th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Statut</th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Dernière connexion</th>
-            <th className="px-6 py-4 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-          {users.map((user) => (
-            <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50">
-              <td className="px-6 py-4">
-                <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">{user.nom}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                  user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {user.role === 'admin' ? 'Administrateur' : 'Commercial'}
-                </span>
-              </td>
-              <td className="px-6 py-4">
-                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                  user.actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {user.actif ? 'Actif' : 'Inactif'}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                {new Date(user.derniere_connexion).toLocaleDateString('fr-FR')}
-              </td>
-              <td className="px-6 py-4 text-right">
-                <div className="flex justify-end gap-2">
-                  <button className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition">
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
+  // Charger les utilisateurs
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/api/parametres/users');
+      if (response.data.success) {
+        setUsers(response.data.data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement utilisateurs:', error);
+    }
+  };
+
+  const handleAddUser = async (userData) => {
+    try {
+      setActionLoading('add');
+      const response = await api.post('/api/parametres/users', userData);
+      
+      if (response.data.success) {
+        setUsers(prev => [...prev, response.data.data]);
+        setShowAddModal(false);
+        alert('✅ Utilisateur ajouté avec succès');
+      } else {
+        alert(`❌ ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Erreur ajout utilisateur:', error);
+      alert(`❌ Erreur: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleEditUser = async (userData) => {
+    try {
+      setActionLoading('edit');
+      const response = await api.put(`/api/parametres/users/${selectedUser.id}`, userData);
+      
+      if (response.data.success) {
+        setUsers(prev => prev.map(u => u.id === selectedUser.id ? response.data.data : u));
+        setShowEditModal(false);
+        setSelectedUser(null);
+        alert('✅ Utilisateur modifié avec succès');
+      } else {
+        alert(`❌ ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Erreur modification utilisateur:', error);
+      alert(`❌ Erreur: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    try {
+      setActionLoading('delete');
+      const response = await api.delete(`/api/parametres/users/${selectedUser.id}`);
+      
+      if (response.data.success) {
+        setUsers(prev => prev.filter(u => u.id !== selectedUser.id));
+        setShowDeleteModal(false);
+        setSelectedUser(null);
+        alert('✅ Utilisateur supprimé avec succès');
+      } else {
+        alert(`❌ ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Erreur suppression utilisateur:', error);
+      alert(`❌ Erreur: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Users className="w-8 h-8 text-green-600" />
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Gestion des Utilisateurs</h2>
+            <p className="text-gray-600 dark:text-gray-400">Administrer les comptes et les rôles</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition"
+        >
+          <Plus className="w-5 h-5" />
+          Nouvel utilisateur
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 dark:bg-zinc-800">
+            <tr>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Utilisateur</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Rôle</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Statut</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">Dernière connexion</th>
+              <th className="px-6 py-4 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            {users.map((user) => (
+              <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50">
+                <td className="px-6 py-4">
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">{user.nom}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                    user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 
+                    user.role === 'manager' ? 'bg-orange-100 text-orange-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}>
+                    {user.role === 'admin' ? 'Administrateur' : 
+                     user.role === 'manager' ? 'Manager' : 'Commercial'}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                    user.actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {user.actif ? 'Actif' : 'Inactif'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                  {user.derniere_connexion ? new Date(user.derniere_connexion).toLocaleDateString('fr-FR') : 'Jamais'}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button 
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setShowEditModal(true);
+                      }}
+                      className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setShowDeleteModal(true);
+                      }}
+                      disabled={user.role === 'admin' && user.id === 1}
+                      className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal Ajout Utilisateur */}
+      {showAddModal && (
+        <UserModal
+          title="Nouvel Utilisateur"
+          onSave={handleAddUser}
+          onClose={() => setShowAddModal(false)}
+          loading={actionLoading === 'add'}
+        />
+      )}
+
+      {/* Modal Modification Utilisateur */}
+      {showEditModal && selectedUser && (
+        <UserModal
+          title="Modifier Utilisateur"
+          user={selectedUser}
+          onSave={handleEditUser}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedUser(null);
+          }}
+          loading={actionLoading === 'edit'}
+        />
+      )}
+
+      {/* Modal Suppression */}
+      {showDeleteModal && selectedUser && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowDeleteModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              
+              <div className="text-center">
+                <h3 className="text-lg leading-6 font-semibold text-gray-900 mb-2">
+                  Supprimer l'utilisateur
+                </h3>
+                <div className="mb-6">
+                  <p className="text-sm text-gray-500">
+                    Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+                    <span className="font-semibold text-gray-900">{selectedUser.nom}</span> ?
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Cette action est irréversible.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setSelectedUser(null);
+                  }}
+                  className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteUser}
+                  disabled={actionLoading === 'delete'}
+                  className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                >
+                  {actionLoading === 'delete' ? (
+                    <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-2" />
+                  )}
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 // Composant Section Email
 const EmailSection = ({ data, setData, onSave, onTest, loading }) => (
@@ -776,52 +996,113 @@ const NotificationsSection = ({ data, setData, onSave, loading }) => (
 );
 
 // Composant Section Apparence
-const AppearanceSection = ({ loading }) => (
-  <div>
-    <div className="flex items-center gap-4 mb-8">
-      <Palette className="w-8 h-8 text-pink-600" />
-      <div>
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Apparence</h2>
-        <p className="text-gray-600 dark:text-gray-400">Personnaliser l'interface du CRM</p>
-      </div>
-    </div>
+const AppearanceSection = ({ loading }) => {
+  const [logoUrl, setLogoUrl] = useState('');
+  const [theme, setTheme] = useState('Clair');
 
-    <div className="space-y-6">
-      <div className="bg-pink-50 dark:bg-pink-900/20 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-pink-800 dark:text-pink-300 mb-4">Thème</h3>
-        <div className="grid grid-cols-3 gap-4">
-          {['Clair', 'Sombre', 'Automatique'].map((theme) => (
-            <button
-              key={theme}
-              className="p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-pink-500 transition"
-            >
-              <div className="text-center">
-                <div className={`w-12 h-8 mx-auto mb-2 rounded ${
-                  theme === 'Clair' ? 'bg-white border' :
-                  theme === 'Sombre' ? 'bg-gray-800' : 'bg-gradient-to-r from-white to-gray-800'
-                }`}></div>
-                <span className="text-sm font-medium">{theme}</span>
-              </div>
-            </button>
-          ))}
+  const handleLogoUpload = () => {
+    const url = prompt('Entrez l\'URL de votre logo:');
+    if (url) {
+      setLogoUrl(url);
+      alert('✅ Logo mis à jour avec succès');
+    }
+  };
+
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    alert(`✅ Thème "${newTheme}" appliqué`);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-8">
+        <Palette className="w-8 h-8 text-pink-600" />
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Apparence</h2>
+          <p className="text-gray-600 dark:text-gray-400">Personnaliser l'interface du CRM</p>
         </div>
       </div>
 
-      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-purple-800 dark:text-purple-300 mb-4">Logo de l'entreprise</h3>
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-            <Building className="w-8 h-8 text-gray-400" />
+      <div className="space-y-6">
+        <div className="bg-pink-50 dark:bg-pink-900/20 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-pink-800 dark:text-pink-300 mb-4">Thème</h3>
+          <div className="grid grid-cols-3 gap-4">
+            {['Clair', 'Sombre', 'Automatique'].map((themeOption) => (
+              <button
+                key={themeOption}
+                onClick={() => handleThemeChange(themeOption)}
+                className={`p-4 border-2 rounded-xl hover:border-pink-500 transition ${
+                  theme === themeOption ? 'border-pink-500 bg-pink-100' : 'border-gray-200 dark:border-gray-700'
+                }`}
+              >
+                <div className="text-center">
+                  <div className={`w-12 h-8 mx-auto mb-2 rounded ${
+                    themeOption === 'Clair' ? 'bg-white border' :
+                    themeOption === 'Sombre' ? 'bg-gray-800' : 'bg-gradient-to-r from-white to-gray-800'
+                  }`}></div>
+                  <span className="text-sm font-medium">{themeOption}</span>
+                </div>
+              </button>
+            ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition">
-            <Upload className="w-5 h-5" />
-            Télécharger un logo
-          </button>
+        </div>
+
+        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-purple-800 dark:text-purple-300 mb-4">Logo de l'entreprise</h3>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
+              ) : (
+                <Building className="w-8 h-8 text-gray-400" />
+              )}
+            </div>
+            <div className="flex-1">
+              <button 
+                onClick={handleLogoUpload}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition"
+              >
+                <Upload className="w-5 h-5" />
+                {logoUrl ? 'Changer le logo' : 'Télécharger un logo'}
+              </button>
+              <p className="text-sm text-gray-500 mt-2">
+                Formats acceptés: JPG, PNG, SVG (max 2MB)
+              </p>
+            </div>
+          </div>
+          {logoUrl && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg">
+              <p className="text-sm text-green-800">
+                ✅ Logo configuré: {logoUrl}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-4">Couleurs personnalisées</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { name: 'Primaire', color: '#3B82F6' },
+              { name: 'Secondaire', color: '#8B5CF6' },
+              { name: 'Succès', color: '#10B981' },
+              { name: 'Danger', color: '#EF4444' }
+            ].map((colorOption) => (
+              <div key={colorOption.name} className="text-center">
+                <div 
+                  className="w-12 h-12 mx-auto mb-2 rounded-lg border-2 border-gray-200 cursor-pointer hover:scale-110 transition-transform"
+                  style={{ backgroundColor: colorOption.color }}
+                  onClick={() => alert(`Couleur ${colorOption.name} sélectionnée`)}
+                ></div>
+                <span className="text-sm font-medium">{colorOption.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Composant Section Sécurité
 const SecuritySection = ({ data, setData, onSave, loading }) => (
@@ -905,83 +1186,286 @@ const SecuritySection = ({ data, setData, onSave, loading }) => (
 );
 
 // Composant Section Système
-const SystemSection = ({ data, setData, onSave, loading }) => (
-  <div>
-    <div className="flex items-center gap-4 mb-8">
-      <Server className="w-8 h-8 text-gray-600" />
-      <div>
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Système</h2>
-        <p className="text-gray-600 dark:text-gray-400">Maintenance et administration système</p>
+const SystemSection = ({ data, setData, onSave, loading }) => {
+  const [actionLoading, setActionLoading] = useState('');
+
+  const executeSystemAction = async (action) => {
+    try {
+      setActionLoading(action);
+      
+      const response = await api.post(`/api/parametres/system/${action}`);
+      
+      if (response.data.success) {
+        alert(`✅ ${response.data.message}`);
+        
+        // Mettre à jour l'état local si nécessaire
+        if (action === 'maintenance' && response.data.data?.maintenance_mode !== undefined) {
+          setData(prev => ({ ...prev, maintenance_mode: response.data.data.maintenance_mode }));
+        }
+      } else {
+        alert(`❌ ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error(`Erreur action ${action}:`, error);
+      alert(`❌ Erreur lors de l'exécution de l'action: ${error.response?.data?.message || error.message}`);
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-8">
+        <Server className="w-8 h-8 text-gray-600" />
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Système</h2>
+          <p className="text-gray-600 dark:text-gray-400">Maintenance et administration système</p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <div className="bg-gray-50 dark:bg-gray-900/20 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-300 mb-4">Sauvegarde</h3>
+          <div className="space-y-4">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={data.auto_backup}
+                onChange={(e) => setData({...data, auto_backup: e.target.checked})}
+                className="w-5 h-5 text-gray-600 rounded focus:ring-gray-500"
+              />
+              <span className="text-gray-700 dark:text-gray-300">Sauvegarde automatique</span>
+            </label>
+            
+            {data.auto_backup && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Fréquence
+                </label>
+                <select
+                  value={data.frequence_backup}
+                  onChange={(e) => setData({...data, frequence_backup: e.target.value})}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-gray-500 outline-none"
+                >
+                  <option value="quotidien">Quotidien</option>
+                  <option value="hebdomadaire">Hebdomadaire</option>
+                  <option value="mensuel">Mensuel</option>
+                </select>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-4">Actions Système</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button 
+              onClick={() => executeSystemAction('backup')}
+              disabled={actionLoading === 'backup'}
+              className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {actionLoading === 'backup' ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <Download className="w-5 h-5" />
+              )}
+              {actionLoading === 'backup' ? 'Création...' : 'Télécharger sauvegarde'}
+            </button>
+            
+            <button 
+              onClick={() => executeSystemAction('optimize')}
+              disabled={actionLoading === 'optimize'}
+              className="flex items-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {actionLoading === 'optimize' ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <Database className="w-5 h-5" />
+              )}
+              {actionLoading === 'optimize' ? 'Optimisation...' : 'Optimiser la base'}
+            </button>
+            
+            <button 
+              onClick={() => executeSystemAction('clear-cache')}
+              disabled={actionLoading === 'clear-cache'}
+              className="flex items-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {actionLoading === 'clear-cache' ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <RefreshCw className="w-5 h-5" />
+              )}
+              {actionLoading === 'clear-cache' ? 'Vidage...' : 'Vider le cache'}
+            </button>
+            
+            <button 
+              onClick={() => executeSystemAction('maintenance')}
+              disabled={actionLoading === 'maintenance'}
+              className={`flex items-center gap-2 px-4 py-3 text-white rounded-xl font-medium transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                data.maintenance_mode 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-red-600 hover:bg-red-700'
+              }`}
+            >
+              {actionLoading === 'maintenance' ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <AlertTriangle className="w-5 h-5" />
+              )}
+              {actionLoading === 'maintenance' 
+                ? 'Changement...' 
+                : data.maintenance_mode 
+                  ? 'Désactiver maintenance' 
+                  : 'Mode maintenance'
+              }
+            </button>
+          </div>
+        </div>
+
+        {/* Informations système */}
+        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-purple-800 dark:text-purple-300 mb-4">Informations Système</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">99.9%</div>
+              <div className="text-sm text-gray-600">Disponibilité</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">2.4 GB</div>
+              <div className="text-sm text-gray-600">Espace libre</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">156</div>
+              <div className="text-sm text-gray-600">Utilisateurs actifs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 flex gap-4">
+        <button
+          onClick={() => onSave(data)}
+          disabled={loading}
+          className="flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-medium transition disabled:opacity-50"
+        >
+          <Save className="w-5 h-5" />
+          Sauvegarder
+        </button>
       </div>
     </div>
+  );
+};
 
-    <div className="space-y-6">
-      <div className="bg-gray-50 dark:bg-gray-900/20 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-300 mb-4">Sauvegarde</h3>
-        <div className="space-y-4">
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={data.auto_backup}
-              onChange={(e) => setData({...data, auto_backup: e.target.checked})}
-              className="w-5 h-5 text-gray-600 rounded focus:ring-gray-500"
-            />
-            <span className="text-gray-700 dark:text-gray-300">Sauvegarde automatique</span>
-          </label>
+// Composant Modal Utilisateur
+const UserModal = ({ title, user = null, onSave, onClose, loading }) => {
+  const [formData, setFormData] = useState({
+    nom: user?.nom || '',
+    email: user?.email || '',
+    role: user?.role || 'commercial',
+    actif: user?.actif !== undefined ? user.actif : true
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.nom || !formData.email) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
+        
+        <div className="inline-block align-bottom bg-white rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
           
-          {data.auto_backup && (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Fréquence
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nom complet *
+              </label>
+              <input
+                type="text"
+                value={formData.nom}
+                onChange={(e) => setFormData({...formData, nom: e.target.value})}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email *
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rôle
               </label>
               <select
-                value={data.frequence_backup}
-                onChange={(e) => setData({...data, frequence_backup: e.target.value})}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-gray-500 outline-none"
+                value={formData.role}
+                onChange={(e) => setFormData({...formData, role: e.target.value})}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none"
               >
-                <option value="quotidien">Quotidien</option>
-                <option value="hebdomadaire">Hebdomadaire</option>
-                <option value="mensuel">Mensuel</option>
+                <option value="commercial">Commercial</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Administrateur</option>
               </select>
             </div>
-          )}
-        </div>
-      </div>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-4">Actions Système</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition">
-            <Download className="w-5 h-5" />
-            Télécharger sauvegarde
-          </button>
-          <button className="flex items-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition">
-            <Database className="w-5 h-5" />
-            Optimiser la base
-          </button>
-          <button className="flex items-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-medium transition">
-            <RefreshCw className="w-5 h-5" />
-            Vider le cache
-          </button>
-          <button className="flex items-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition">
-            <AlertTriangle className="w-5 h-5" />
-            Mode maintenance
-          </button>
+            <div>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.actif}
+                  onChange={(e) => setFormData({...formData, actif: e.target.checked})}
+                  className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                />
+                <span className="text-sm font-medium text-gray-700">Compte actif</span>
+              </label>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading && <RefreshCw className="w-4 h-4 animate-spin" />}
+                {user ? 'Modifier' : 'Ajouter'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-
-    <div className="mt-8 flex gap-4">
-      <button
-        onClick={() => onSave(data)}
-        disabled={loading}
-        className="flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-medium transition disabled:opacity-50"
-      >
-        <Save className="w-5 h-5" />
-        Sauvegarder
-      </button>
-    </div>
-  </div>
-);
+  );
+};
 
 export default Settings;

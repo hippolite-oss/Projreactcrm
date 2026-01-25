@@ -1,26 +1,24 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import {
   LayoutDashboard,
   Users,
-  UserPlus,
-  Contact,
   Contact2,
   Package,
-  PackagePlus,
   ShoppingCart,
-  FileText,
-  FilePlus,
-  Receipt,
   BarChart3,
   Settings,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  FolderTree,
+  LogOut
 } from 'lucide-react';
 import './Sidebar.css';
 
 function Sidebar({ isOpen }) {
   const location = useLocation();
+  const { user, logout } = useAuth();
   const [openSubmenus, setOpenSubmenus] = useState({
     clients: location.pathname.includes('/clients'),
     contacts: location.pathname.includes('/contacts'),
@@ -36,6 +34,27 @@ function Sidebar({ isOpen }) {
     }));
   };
 
+  const handleLogout = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      logout();
+    }
+  };
+
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || user.email.charAt(0).toUpperCase();
+  };
+
+  const getUserDisplayName = () => {
+    if (!user) return 'Utilisateur';
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return user.email;
+  };
+
   const menuItems = [
     {
       type: 'link',
@@ -45,13 +64,9 @@ function Sidebar({ isOpen }) {
     },
     {
       type: 'link',
+      path: '/dashboard/clients',
       label: 'Clients',
       icon: Contact2,
-      key: 'clients',
-      
-         path: '/dashboard/clients', label: 'Clients', icon: Users , // Changé ici
-       // { path: '/dashboard/nouveauclient', label: 'Nouveau client', icon: UserPlus }, // Changé ici
-      
     },
    // {
      // type: 'submenu',
@@ -76,10 +91,22 @@ function Sidebar({ isOpen }) {
       key: 'products',
       items: [
         { path: '/dashboard/products', label: 'Nouveau produit', icon: Package }, // Changé ici
-        { path: '/dashboard/Listproduits', label: 'Liste des produits', icon: PackagePlus }, // Ajoutez cette route dans App.jsx si nécessaire
+        //{ path: '/dashboard/Listproduits', label: 'Liste des produits', icon: PackagePlus }, // Ajoutez cette route dans App.jsx si nécessaire
+        { path: '/dashboard/categories', label: 'Catégories', icon: FolderTree }, // Nouvelle route
       ]
     },
-    {
+     /*{
+      type: 'submenu',
+      label: 'Factures',
+      icon: Receipt,
+      key: 'invoices',
+      items: [
+        { path: '/dashboard/invoices', label: 'Liste des factures', icon: Receipt }, // Changé ici
+        { path: '/dashboard/Listeinvoices', label: 'Nouvelle facture', icon: Receipt }, // Ajoutez cette route dans App.jsx si nécessaire
+      ]
+    },**/
+
+    /*{
       type: 'submenu',
       label: 'Devis',
       icon: FileText,
@@ -88,7 +115,7 @@ function Sidebar({ isOpen }) {
         { path: '/dashboard/quotes', label: 'Liste des devis', icon: FileText }, // Changé ici
         //{ path: '/dashboard/nouveaudevis', label: 'Nouveau devis', icon: FilePlus },  Ajoutez cette route dans App.jsx si nécessaire
       ]
-    },
+    },**/
    /* {
       type: 'link',
       path: '/dashboard/commandes',
@@ -102,16 +129,7 @@ function Sidebar({ isOpen }) {
       icon: ShoppingCart,
     },
     
-    {
-      type: 'submenu',
-      label: 'Factures',
-      icon: Receipt,
-      key: 'invoices',
-      items: [
-        { path: '/dashboard/invoices', label: 'Liste des factures', icon: Receipt }, // Changé ici
-        { path: '/dashboard/Listeinvoices', label: 'Nouvelle facture', icon: Receipt }, // Ajoutez cette route dans App.jsx si nécessaire
-      ]
-    },
+   
     {
       type: 'link',
       path: '/dashboard/reports',
@@ -216,11 +234,20 @@ function Sidebar({ isOpen }) {
       {isOpen && (
         <div className="sidebar-footer">
           <div className="user-info">
-            <div className="user-avatar">JD</div>
-            <div className="user-details">
-              <span className="user-name">John Doe</span>
-              <span className="user-role">Administrateur</span>
+            <div className="user-avatar">
+              {getUserInitials()}
             </div>
+            <div className="user-details">
+              <span className="user-name">{getUserDisplayName()}</span>
+              <span className="user-role">{user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</span>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="logout-button"
+              title="Se déconnecter"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       )}

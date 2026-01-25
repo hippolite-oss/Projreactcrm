@@ -9,8 +9,13 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     console.log('🔍 AuthContext: Initialisation...');
-    const token = localStorage.getItem('token')
+    
+    // Vérifier d'abord sessionStorage, puis localStorage
+    let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+    
     console.log('🔑 Token trouvé:', token ? 'Oui' : 'Non');
+    console.log('💾 Remember me:', rememberMe);
     
     if (token) {
       // Vérifier si le token semble valide (format JWT basique)
@@ -18,6 +23,7 @@ export function AuthProvider({ children }) {
       if (tokenParts.length !== 3) {
         console.log('❌ Token malformé, suppression...');
         localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         setLoading(false);
         return;
       }
@@ -35,6 +41,8 @@ export function AuthProvider({ children }) {
           console.log('🧹 Nettoyage du localStorage...');
           localStorage.removeItem('token')
           localStorage.removeItem('user')
+          localStorage.removeItem('rememberMe')
+          sessionStorage.removeItem('token')
           delete api.defaults.headers.common['Authorization']
           setUser(null);
         })
@@ -48,11 +56,20 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     try {
       const res = await api.post('/api/auth/login', { email, password })
       const { token, user } = res.data
-      localStorage.setItem('token', token)
+      
+      // Stocker le token selon la préférence de l'utilisateur
+      if (rememberMe) {
+        localStorage.setItem('token', token)
+        localStorage.setItem('rememberMe', 'true')
+      } else {
+        sessionStorage.setItem('token', token)
+        localStorage.removeItem('rememberMe')
+      }
+      
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setUser(user)
       return { success: true }
@@ -64,14 +81,50 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const loginWithGoogle = async () => {
+    try {
+      // Redirection vers l'endpoint OAuth Google
+      window.location.href = `${api.defaults.baseURL}/api/auth/google`;
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        message: 'Erreur de connexion avec Google',
+      }
+    }
+  }
+
+  const loginWithGitHub = async () => {
+    try {
+      // Redirection vers l'endpoint OAuth GitHub
+      window.location.href = `${api.defaults.baseURL}/api/auth/github`;
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        message: 'Erreur de connexion avec GitHub',
+      }
+    }
+  }
+
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('rememberMe')
+    sessionStorage.removeItem('token')
     delete api.defaults.headers.common['Authorization']
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      setUser, // Exposer setUser pour AuthCallback
+      login, 
+      loginWithGoogle, 
+      loginWithGitHub, 
+      logout, 
+      loading 
+    }}>
       {children}
     </AuthContext.Provider>
   )

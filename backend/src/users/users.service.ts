@@ -35,5 +35,45 @@ export class UsersService {
   async validatePassword(user: User, password: string): Promise<boolean> {
     return bcrypt.compare(password, user.password);
   }
+
+  // Méthodes OAuth
+  async findByProviderId(provider: string, providerId: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { provider: provider as any, providerId }
+    });
+  }
+
+  async createOAuthUser(userData: {
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    provider: string;
+    providerId: string;
+    avatar?: string;
+  }): Promise<User> {
+    const user = this.usersRepository.create({
+      ...userData,
+      provider: userData.provider as any, // Cast pour éviter les erreurs TypeScript
+      emailVerified: true, // Les comptes OAuth sont considérés comme vérifiés
+      isActive: true,
+      role: 'user' as any,
+    });
+    return this.usersRepository.save(user);
+  }
+
+  async updateOAuthInfo(userId: number, oauthData: {
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  }): Promise<User> {
+    await this.usersRepository.update(userId, oauthData);
+    return this.findById(userId);
+  }
+
+  async updateLastLogin(userId: number): Promise<void> {
+    await this.usersRepository.update(userId, {
+      lastLoginAt: new Date(),
+    });
+  }
 }
 

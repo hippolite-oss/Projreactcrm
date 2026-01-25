@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../services/api'
 import { 
   Users, Package, FileText, Receipt, TrendingUp, DollarSign, 
@@ -53,12 +54,24 @@ function Dashboard() {
     { name: 'Prospects', value: 25 }
   ])
   const [recentActivities, setRecentActivities] = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [topProducts, setTopProducts] = useState([])
   const [systemStatus, setSystemStatus] = useState({
     database: 'online',
     api: 'online',
     storage: '85%',
     uptime: '99.8%'
   })
+
+  // Fonction de formatage de devise
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount).replace('€', 'F')
+  }
 
   // Mettre à jour l'heure en temps réel
   useEffect(() => {
@@ -173,6 +186,36 @@ function Dashboard() {
         ]);
       }
       
+      // Charger les activités récentes
+      try {
+        const activitiesResponse = await api.get('/api/dashboard/recent-activities');
+        if (activitiesResponse.data && activitiesResponse.data.success) {
+          setRecentActivities(activitiesResponse.data.data || []);
+        }
+      } catch (error) {
+        console.log('Endpoint recent-activities non disponible');
+      }
+
+      // Charger les notifications
+      try {
+        const notificationsResponse = await api.get('/api/dashboard/notifications');
+        if (notificationsResponse.data && notificationsResponse.data.success) {
+          setNotifications(notificationsResponse.data.data || []);
+        }
+      } catch (error) {
+        console.log('Endpoint notifications non disponible');
+      }
+
+      // Charger les produits populaires
+      try {
+        const productsResponse = await api.get('/api/dashboard/top-products');
+        if (productsResponse.data && productsResponse.data.success) {
+          setTopProducts(productsResponse.data.data || []);
+        }
+      } catch (error) {
+        console.log('Endpoint top-products non disponible');
+      }
+      
       setLoading(false);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -222,10 +265,24 @@ function Dashboard() {
 
     setRecentActivities([
       { id: 1, user: 'Admin', action: 'a ajouté un nouveau client', time: '10:30', icon: 'plus' },
-      { id: 2, user: 'Vendeur1', action: 'a effectué une vente de €2,500', time: '11:15', icon: 'cart' },
+      { id: 2, user: 'Vendeur1', action: `a effectué une vente de ${formatCurrency(2500)}`, time: '11:15', icon: 'cart' },
       { id: 3, user: 'Admin', action: 'a créé une facture #INV-2456', time: '13:45', icon: 'edit' },
       { id: 4, user: 'System', action: 'sauvegarde automatique effectuée', time: '14:00', icon: 'save' },
       { id: 5, user: 'Vendeur2', action: 'a créé un nouveau contact', time: '15:30', icon: 'user' }
+    ]);
+
+    setNotifications([
+      { id: 1, type: 'alert', message: '3 produits en rupture de stock', time: '10 min', read: false },
+      { id: 2, type: 'warning', message: '8 produits atteignent le seuil bas', time: '30 min', read: true },
+      { id: 3, type: 'info', message: 'Nouvelle commande reçue #ORD-2456', time: '1h', read: true },
+      { id: 4, type: 'success', message: `Paiement reçu de ${formatCurrency(1200)}`, time: '2h', read: true }
+    ]);
+
+    setTopProducts([
+      { id: 1, name: 'Service Premium', sales: 28, revenue: 25197, stock: 15, trend: 'up' },
+      { id: 2, name: 'Formation Pro', sales: 45, revenue: 31495, stock: 8, trend: 'up' },
+      { id: 3, name: 'Consulting', sales: 67, revenue: 13393, stock: 20, trend: 'up' },
+      { id: 4, name: 'Support Annuel', sales: 89, revenue: 6221, stock: 5, trend: 'up' }
     ]);
   };
 
@@ -234,41 +291,27 @@ function Dashboard() {
   }, [timeRange]);
 
   // Données supplémentaires pour votre thème
-  const notificationsMock = [
-    { id: 1, type: 'alert', message: '3 produits en rupture de stock', time: '10 min', read: false },
-    { id: 2, type: 'warning', message: '8 produits atteignent le seuil bas', time: '30 min', read: true },
-    { id: 3, type: 'info', message: 'Nouvelle commande reçue #ORD-2456', time: '1h', read: true },
-    { id: 4, type: 'success', message: 'Paiement reçu de €1,200', time: '2h', read: true }
-  ]
-
   const quickActionsMock = [
-    { id: 1, title: 'Nouveau Client', icon: <Users className="w-5 h-5" />, color: 'bg-orange-500', link: '/nouveauclient' },
-    { id: 2, title: 'Nouvelle Vente', icon: <ShoppingCart className="w-5 h-5" />, color: 'bg-green-500', link: '/commande' },
-    { id: 3, title: 'Nouvelle Facture', icon: <Receipt className="w-5 h-5" />, color: 'bg-purple-500', link: '/invoices' },
-    { id: 4, title: 'Nouveau Produit', icon: <Package className="w-5 h-5" />, color: 'bg-blue-500', link: '/products' },
-    { id: 5, title: 'Générer Rapport', icon: <BarChart3 className="w-5 h-5" />, color: 'bg-indigo-500', link: '/reports' },
-    { id: 6, title: 'Voir Alertes', icon: <Bell className="w-5 h-5" />, color: 'bg-red-500', link: '/alerts' }
+    { id: 1, title: 'Nouveau Client', icon: <Users className="w-5 h-5" />, color: 'bg-orange-500', link: '/dashboard/clients' },
+    { id: 2, title: 'Nouvelle Commande', icon: <ShoppingCart className="w-5 h-5" />, color: 'bg-green-500', link: '/dashboard/CommandesOnline' },
+    { id: 3, title: 'Nouveau Produit', icon: <Package className="w-5 h-5" />, color: 'bg-blue-500', link: '/dashboard/products' },
+    { id: 4, title: 'Contacts', icon: <Users className="w-5 h-5" />, color: 'bg-purple-500', link: '/dashboard/prospects' },
+    { id: 5, title: 'Générer Rapport', icon: <BarChart3 className="w-5 h-5" />, color: 'bg-indigo-500', link: '/dashboard/reports' },
+    { id: 6, title: 'Paramètres', icon: <Settings className="w-5 h-5" />, color: 'bg-red-500', link: '/dashboard/settings' }
   ]
 
   const realTimeStats = [
     { id: 1, label: 'Clients en ligne', value: 7, change: '+2', trend: 'up' },
-    { id: 2, label: 'Factures générées', value: 12, change: '+3', trend: 'up' },
-    { id: 3, label: 'Devis en attente', value: 8, change: '-1', trend: 'down' },
+    { id: 2, label: 'Commandes du jour', value: 12, change: '+3', trend: 'up' },
+    { id: 3, label: 'Prospects actifs', value: 8, change: '-1', trend: 'down' },
     { id: 4, label: 'Temps réponse', value: '0.8s', change: '-0.2s', trend: 'down' }
   ]
 
   const dailyGoals = [
-    { id: 1, title: 'Chiffre d\'affaires', target: '€10,000', current: '€8,950', progress: 89, color: 'bg-green-500' },
+    { id: 1, title: 'Chiffre d\'affaires', target: formatCurrency(10000), current: formatCurrency(8950), progress: 89, color: 'bg-green-500' },
     { id: 2, title: 'Nouveaux clients', target: 15, current: 12, progress: 80, color: 'bg-blue-500' },
-    { id: 3, title: 'Factures émises', target: 50, current: 42, progress: 84, color: 'bg-purple-500' },
+    { id: 3, title: 'Commandes traitées', target: 50, current: 42, progress: 84, color: 'bg-purple-500' },
     { id: 4, title: 'Taux de conversion', target: '75%', current: '68%', progress: 90, color: 'bg-orange-500' }
-  ]
-
-  const popularProducts = [
-    { id: 1, name: 'Service Premium', sales: 28, revenue: 25197, stock: 15, trend: 'up' },
-    { id: 2, name: 'Formation Pro', sales: 45, revenue: 31495, stock: 8, trend: 'up' },
-    { id: 3, name: 'Consulting', sales: 67, revenue: 13393, stock: 20, trend: 'up' },
-    { id: 4, name: 'Support Annuel', sales: 89, revenue: 6221, stock: 5, trend: 'up' }
   ]
 
   const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#6b7280']
@@ -300,17 +343,13 @@ function Dashboard() {
     },
     { 
       label: 'Revenu Total', 
-      value: `€${(stats.revenue).toLocaleString()}`, 
+      value: formatCurrency(stats.revenue), 
       icon: DollarSign, 
       color: '#f59e0b',
       change: '+12.5%',
       trend: 'up'
     }
   ]
-
-  const formatCurrency = (amount) => {
-    return '€' + new Intl.NumberFormat('fr-FR').format(amount)
-  }
 
   const getActivityIcon = (icon) => {
     switch(icon) {
@@ -335,30 +374,38 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement du tableau de bord...</p>
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 mx-auto mb-6"></div>
+            <div className="absolute inset-2 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-full"></div>
+          </div>
+          <p className="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+            Chargement du tableau de bord...
+          </p>
+          <p className="text-lg text-gray-300 mt-2 font-medium">Préparation de vos données</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* En-tête */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg">
-                <Home className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50">
+      {/* En-tête amélioré */}
+      <div className="bg-gradient-to-r from-white via-gray-50 to-slate-100 shadow-xl border-b border-gray-200">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-xl transform hover:scale-105 transition-transform duration-300">
+                <Home className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Centre de Contrôle</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <p className="text-sm text-gray-600">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-700 via-slate-700 to-gray-800 bg-clip-text text-transparent">
+                  Tableau de Bord
+                </h1>
+                <div className="flex items-center gap-3 mt-2">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  <p className="text-lg text-gray-700 font-medium">
                     {time.toLocaleDateString('fr-FR', { 
                       weekday: 'long', 
                       year: 'numeric', 
@@ -372,24 +419,24 @@ function Dashboard() {
             
             <div className="flex items-center gap-4">
               <select 
-                className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700"
+                className="px-6 py-3 border-2 border-blue-200 rounded-xl bg-white/80 backdrop-blur-sm text-slate-700 font-medium focus:ring-4 focus:ring-blue-200 focus:border-blue-300 transition-all duration-300"
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
               >
-                <option value="week">Cette semaine</option>
-                <option value="month">Ce mois</option>
-                <option value="quarter">Ce trimestre</option>
-                <option value="year">Cette année</option>
+                <option value="week" className="text-gray-900">Cette semaine</option>
+                <option value="month" className="text-gray-900">Ce mois</option>
+                <option value="quarter" className="text-gray-900">Ce trimestre</option>
+                <option value="year" className="text-gray-900">Cette année</option>
               </select>
               <button
                 onClick={fetchDashboardData}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg font-medium flex items-center gap-2"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Actualiser
               </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+              <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                 <Settings className="w-5 h-5" />
               </button>
             </div>
@@ -397,33 +444,47 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Stats principales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="container mx-auto px-6 py-8">
+        {/* Stats principales avec design spectaculaire */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {statCards.map((card, index) => {
             const Icon = card.icon
+            const gradients = [
+              'from-pink-500 via-red-500 to-yellow-500',
+              'from-green-400 via-blue-500 to-purple-600', 
+              'from-purple-400 via-pink-500 to-red-500',
+              'from-yellow-400 via-orange-500 to-red-500'
+            ]
+            const iconBgs = [
+              'from-pink-400 to-red-500',
+              'from-green-400 to-blue-500',
+              'from-purple-400 to-pink-500', 
+              'from-yellow-400 to-orange-500'
+            ]
             return (
-              <div key={index} className="bg-white rounded-xl shadow-sm border p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">{card.label}</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">
-                      {card.value}
-                    </p>
-                    <div className="flex items-center gap-1 mt-2">
-                      {card.trend === 'up' ? (
-                        <TrendingUp className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <TrendingDown className="w-4 h-4 text-red-600" />
-                      )}
-                      <span className={`text-sm ${card.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                        {card.trend === 'up' ? '+' : ''}{card.change}
-                      </span>
-                      <span className="text-xs text-gray-500 ml-1">vs mois dernier</span>
+              <div key={index} className={`bg-gradient-to-br ${gradients[index]} p-1 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 hover:-rotate-1`}>
+                <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 h-full">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-2">{card.label}</p>
+                      <p className="text-4xl font-black text-gray-900 mb-3">
+                        {card.value}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {card.trend === 'up' ? (
+                          <TrendingUp className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <TrendingDown className="w-5 h-5 text-red-600" />
+                        )}
+                        <span className={`text-sm font-bold ${card.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                          {card.change}
+                        </span>
+                        <span className="text-xs text-gray-600 ml-1 font-medium">vs mois dernier</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-3 rounded-lg" style={{ backgroundColor: `${card.color}20` }}>
-                    <Icon className="w-6 h-6" style={{ color: card.color }} />
+                    <div className={`p-4 rounded-2xl bg-gradient-to-br ${iconBgs[index]} shadow-lg transform hover:scale-110 transition-transform duration-300`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -431,179 +492,181 @@ function Dashboard() {
           })}
         </div>
 
-        {/* Deuxième ligne : Graphiques */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Évolution des clients */}
-          <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <div className="p-5 border-b">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-500" />
+        {/* Graphiques professionnels avec design sobre */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Évolution des clients - Graphique fréquentiel */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <Activity className="w-5 h-5 text-white" />
+                </div>
                 Évolution des Clients
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                Croissance mensuelle de votre clientèle
+                Analyse fréquentielle mensuelle
               </p>
             </div>
-            <div className="p-5">
-              <div className="h-72">
+            <div className="p-6">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={clientData}>
+                  <BarChart data={clientData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip />
-                    <Area 
-                      type="monotone" 
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="#6b7280" 
+                      fontSize={12} 
+                      fontWeight="500"
+                      tick={{ fill: '#6b7280' }}
+                    />
+                    <YAxis 
+                      stroke="#6b7280" 
+                      fontSize={12} 
+                      fontWeight="500"
+                      tick={{ fill: '#6b7280' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #d1d5db', 
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <Legend />
+                    <Bar 
                       dataKey="clients" 
-                      stroke="#2563eb" 
-                      fill="#2563eb" 
-                      fillOpacity={0.1}
-                      name="Total Clients"
+                      name="Total Clients" 
+                      fill="#3b82f6"
+                      radius={[2, 2, 0, 0]}
+                      stroke="#2563eb"
+                      strokeWidth={1}
                     />
-                    <Area 
-                      type="monotone" 
+                    <Bar 
                       dataKey="newClients" 
-                      stroke="#10b981" 
-                      fill="#10b981" 
-                      fillOpacity={0.1}
-                      name="Nouveaux Clients"
+                      name="Nouveaux Clients" 
+                      fill="#10b981"
+                      radius={[2, 2, 0, 0]}
+                      stroke="#059669"
+                      strokeWidth={1}
                     />
-                  </AreaChart>
+                  </BarChart>
                 </ResponsiveContainer>
+              </div>
+              
+              {/* Statistiques fréquentielles */}
+              <div className="mt-4 grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-gray-800">
+                    {Math.round(clientData.reduce((acc, item) => acc + item.clients, 0) / clientData.length)}
+                  </div>
+                  <div className="text-xs text-gray-500">Moyenne</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-600">
+                    {Math.max(...clientData.map(item => item.clients))}
+                  </div>
+                  <div className="text-xs text-gray-500">Maximum</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-green-600">
+                    +{clientData[clientData.length - 1]?.clients - clientData[0]?.clients || 0}
+                  </div>
+                  <div className="text-xs text-gray-500">Croissance</div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Répartition par statut */}
-          <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <div className="p-5 border-b">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Users className="w-5 h-5 text-purple-500" />
+          {/* Répartition par statut - Dashboard professionnel */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                <div className="p-2 bg-slate-600 rounded-lg">
+                  <Users className="w-5 h-5 text-white" />
+                </div>
                 Répartition des Clients
               </h2>
               <p className="text-sm text-gray-600 mt-1">
                 Distribution par statut d'activité
               </p>
             </div>
-            <div className="p-5">
-              <div className="h-72">
+            <div className="p-6">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={statusData}
                       cx="50%"
                       cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={2}
                       dataKey="value"
+                      stroke="#ffffff"
+                      strokeWidth={2}
                     >
-                      {statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
+                      {statusData.map((entry, index) => {
+                        const colors = ['#3b82f6', '#10b981', '#6b7280', '#f59e0b'];
+                        return (
+                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        );
+                      })}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #d1d5db', 
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        fontSize: '14px'
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                {statusData.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-sm text-gray-700">{item.name}:</span>
-                    <span className="text-sm font-semibold">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Troisième ligne : Actions rapides et Revenus */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Actions rapides */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className="p-5 border-b">
-                <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-orange-500" />
-                  Actions Rapides
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Accédez rapidement aux fonctionnalités principales
-                </p>
-              </div>
-              <div className="p-5">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {quickActionsMock.map((action) => (
-                    <a
-                      key={action.id}
-                      href={action.link}
-                      className="group"
-                    >
-                      <div className="bg-gray-50 hover:bg-gray-100 border rounded-xl p-4 text-center transition-all duration-200 group-hover:shadow-md">
-                        <div className={`${action.color} w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3`}>
-                          {action.icon}
-                        </div>
-                        <div className="font-medium text-gray-900">{action.title}</div>
+              
+              {/* Légende professionnelle */}
+              <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-gray-100">
+                {statusData.map((item, index) => {
+                  const colors = ['#3b82f6', '#10b981', '#6b7280', '#f59e0b'];
+                  const bgColors = ['bg-blue-600', 'bg-green-600', 'bg-gray-600', 'bg-yellow-600'];
+                  return (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className={`w-3 h-3 rounded-full ${bgColors[index]}`}></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-gray-700">{item.name}</div>
+                        <div className="text-lg font-bold text-gray-800">{item.value}</div>
                       </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Revenus vs Objectifs */}
-          <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <div className="p-5 border-b">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Target className="w-5 h-5 text-red-500" />
-                Revenus vs Objectifs
-              </h2>
-            </div>
-            <div className="p-5">
-              <div className="h-60">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip />
-                    <Bar 
-                      dataKey="revenue" 
-                      name="Revenus Réels" 
-                      fill="#8b5cf6" 
-                      radius={[4, 4, 0, 0]}
-                    />
-                    <Bar 
-                      dataKey="target" 
-                      name="Objectifs" 
-                      fill="#f59e0b" 
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">
+                          {((item.value / statusData.reduce((acc, curr) => acc + curr.value, 0)) * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
+
+       
+       
+
+          
+
+        
+                
 
         
       </div>
-      {/* Footer */}
-      <footer className="mt-8 py-6 border-t bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-sm text-gray-600">
-            <p>© 2024 Tableau de Bord Professionnel - Gestion Client Pro</p>
-            <p className="mt-1">
-              <span className="text-green-600">● Système en ligne</span> | 
-              <span className="ml-2">Uptime: {systemStatus.uptime}</span> | 
-              <span className="ml-2 text-blue-600">
-                Dernière mise à jour: {time.toLocaleTimeString('fr-FR')}
-              </span>
-            </p>
+      {/* Footer simple */}
+      <footer className="mt-16 py-6 bg-white border-t border-gray-200">
+        <div className="container mx-auto px-6">
+          <div className="text-center">
+            <p className="text-gray-600">© 2024 Système de Gestion CRM Professionnel</p>
           </div>
         </div>
       </footer>
