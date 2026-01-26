@@ -10,8 +10,6 @@ import {
   ArrowRight,
   CheckCircle,
   Package,
-  ShoppingBag,
-  Mail,
   Loader2,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -396,14 +394,14 @@ const Home = () => {
 
             {/* Grille de produits */}
             {!productsLoading && !productsError && products.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
                 {products.map((product) => {
                   if (!product || !product.id) return null;
                   
                   return (
                     <div
                       key={product.id}
-                      className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+                      className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
                     >
                       <div className="relative aspect-square overflow-hidden bg-gray-100">
                         {product.imageUrl ? (
@@ -425,26 +423,26 @@ const Home = () => {
                           className="w-full h-full flex items-center justify-center bg-gray-100"
                           style={{ display: product.imageUrl ? 'none' : 'flex' }}
                         >
-                          <Package className="w-12 h-12 text-gray-300" />
+                          <Package className="w-8 h-8 text-gray-300" />
                         </div>
 
                         {/* Prix superposé */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                          <span className="text-white text-lg font-bold">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                          <span className="text-white text-sm font-bold">
                             {formatPrice(product.price)}
                           </span>
                         </div>
 
                         {/* Badge de stock si faible */}
                         {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
-                          <div className="absolute top-2 right-2 px-2 py-1 bg-orange-500 text-white text-xs font-medium rounded-full">
+                          <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-orange-500 text-white text-xs font-medium rounded-full">
                             Stock faible
                           </div>
                         )}
 
                         {/* Badge rupture de stock */}
                         {product.stockQuantity <= 0 && (
-                          <div className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full">
+                          <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-red-500 text-white text-xs font-medium rounded-full">
                             Rupture
                           </div>
                         )}
@@ -472,7 +470,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               <ContactForm />
             </div>
           </div>
