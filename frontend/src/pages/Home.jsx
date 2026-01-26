@@ -1,73 +1,35 @@
-// src/pages/HomeCRM.jsx
-import { useState, useEffect, useRef } from "react";
+// src/pages/Home.jsx
+import { useState, useEffect } from "react";
 import {
-  ChevronUp,
   ChevronLeft,
   ChevronRight,
   Users,
   TrendingUp,
   DollarSign,
   BarChart3,
-  Shield,
-  Clock,
-  Phone,
   ArrowRight,
-  Mail,
-  MapPin,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Activity,
-  Target,
-  Award,
   CheckCircle,
-  Zap,
-  MessageSquare,
-  Calendar,
-  Settings,
-  Cloud,
-  Lock,
-  Star,
   Package,
   ShoppingBag,
-  Tag,
+  Mail,
   Loader2,
 } from "lucide-react";
-import { motion, useAnimation, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import api from "../services/api";
+import ContactForm from "../components/ContactForm";
+import axios from "axios";
 
 const Home = () => {
+  console.log('🏠 Home component is rendering');
+  
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(null);
 
-  const heroRef = useRef(null);
-  const featuresRef = useRef(null);
-  const productsRef = useRef(null);
-  const dashboardRef = useRef(null);
-  const contactRef = useRef(null);
-
-  const controls = {
-    hero: useAnimation(),
-    features: useAnimation(),
-    products: useAnimation(),
-    dashboard: useAnimation(),
-    contact: useAnimation(),
-  };
-
-  const heroInView = useInView(heroRef, { once: true });
-  const featuresInView = useInView(featuresRef, { once: true });
-  const productsInView = useInView(productsRef, { once: true });
-  const dashboardInView = useInView(dashboardRef, { once: true });
-  const contactInView = useInView(contactRef, { once: true });
-
-  // Slides pour le hero avec chemins depuis le dossier public
+  // Slides pour le hero
   const slides = [
     {
       image: "/b8.jpg",
@@ -84,37 +46,8 @@ const Home = () => {
     {
       image: "/b9.jpg",
       title: "Suivez vos performances en temps réel",
-      subtitle:
-        "Tableaux de bord personnalisés pour une meilleure prise de décision",
+      subtitle: "Tableaux de bord personnalisés pour une meilleure prise de décision",
       cta: "Découvrir les rapports",
-    },
-  ];
-
-  // Produits phares simplifiés
-  const featuredProductsData = [
-    {
-      id: 1,
-      name: "Apple Watch",
-      price: "225000FCFA",
-      image: "b11.jpg",
-    },
-    {
-      id: 2,
-      name: "AirPods",
-      price: "5000FCFA",
-      image: "b2.jpg",
-    },
-    {
-      id: 3,
-      name: "Modern speakers",
-      price: "15000FCFA",
-      image: "o.jpg",
-    },
-    {
-      id: 4,
-      name: "Nintendo Switch",
-      price: "150000FCFA",
-      image: "b4.jpg",
     },
   ];
 
@@ -123,8 +56,7 @@ const Home = () => {
     {
       id: 1,
       title: "Gestion des Clients",
-      description:
-        "Centralisez toutes les informations clients, historiques et interactions",
+      description: "Centralisez toutes les informations clients, historiques et interactions",
       icon: Users,
       stats: "500+ entreprises",
       color: "from-blue-500 to-cyan-500",
@@ -132,8 +64,7 @@ const Home = () => {
     {
       id: 2,
       title: "Pipeline des Ventes",
-      description:
-        "Suivez chaque opportunité de la prospection à la facturation",
+      description: "Suivez chaque opportunité de la prospection à la facturation",
       icon: TrendingUp,
       stats: "Conversion +35%",
       color: "from-green-500 to-emerald-500",
@@ -142,7 +73,7 @@ const Home = () => {
       id: 3,
       title: "Automatisation",
       description: "Automatisez vos emails, rappels et tâches répétitives",
-      icon: Zap,
+      icon: BarChart3,
       stats: "70% de temps gagné",
       color: "from-purple-500 to-pink-500",
     },
@@ -156,119 +87,53 @@ const Home = () => {
     },
   ];
 
-  // Témoignages clients
-  const testimonials = [
-    {
-      name: "Sarah Martin",
-      company: "TechSolutions Inc",
-      role: "Directrice Commerciale",
-      content:
-        "Depuis l'implémentation de ce CRM, notre équipe a augmenté sa productivité de 40%. La gestion des leads est devenue beaucoup plus efficace.",
-      avatar: "SM",
-    },
-    {
-      name: "Thomas Dubois",
-      company: "Innovatech",
-      role: "CEO",
-      content:
-        "L'automatisation des processus nous a permis de réduire le temps administratif de 60%. Un outil indispensable pour notre croissance.",
-      avatar: "TD",
-    },
-    {
-      name: "Marie Lambert",
-      company: "Global Consulting",
-      role: "Responsable Marketing",
-      content:
-        "Les rapports en temps réel nous permettent de prendre des décisions éclairées rapidement. L'intégration avec nos autres outils est parfaite.",
-      avatar: "ML",
-    },
-  ];
-
-  // Services CRM
-  const services = [
-    {
-      icon: <Cloud className="w-12 h-12" />,
-      title: "Cloud Sécurisé",
-      description:
-        "Données stockées sur des serveurs sécurisés avec sauvegarde automatique",
-      color: "bg-blue-500",
-    },
-    {
-      icon: <Settings className="w-12 h-12" />,
-      title: "Personnalisation",
-      description: "Adaptez le CRM à vos processus métiers spécifiques",
-      color: "bg-purple-500",
-    },
-    {
-      icon: <Shield className="w-12 h-12" />,
-      title: "Sécurité RGPD",
-      description:
-        "Conforme aux dernières réglementations de protection des données",
-      color: "bg-green-500",
-    },
-    {
-      icon: <MessageSquare className="w-12 h-12" />,
-      title: "Support Premium",
-      description: "Assistance technique 7j/7 par nos experts CRM",
-      color: "bg-orange-500",
-    },
-  ];
-
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () =>
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+
+  // Fonction pour charger les produits depuis l'API publique
+  const loadProducts = async () => {
+    try {
+      setProductsLoading(true);
+      setProductsError(null);
+      console.log('🔄 Chargement des produits depuis l\'API publique...');
+      
+      const response = await axios.get('http://localhost:3001/api/products/public/featured');
+      console.log('📦 Produits reçus:', response.data);
+      
+      setProducts(response.data || []);
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement des produits:', error);
+      setProductsError('Impossible de charger les produits');
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  const formatPrice = (price) => {
+    try {
+      return `${price || 0} F`;
+    } catch (e) {
+      return '0 F';
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Simuler le chargement des produits
   useEffect(() => {
-    setFeaturedProducts(featuredProductsData);
+    loadProducts();
   }, []);
-
-  useEffect(() => {
-    if (heroInView) controls.hero.start({ opacity: 1, y: 0 });
-    if (featuresInView) controls.features.start({ opacity: 1, y: 0 });
-    if (productsInView) controls.products.start({ opacity: 1, y: 0 });
-    if (dashboardInView) controls.dashboard.start({ opacity: 1, y: 0 });
-    if (contactInView) controls.contact.start({ opacity: 1, y: 0 });
-  }, [
-    heroInView,
-    featuresInView,
-    productsInView,
-    dashboardInView,
-    contactInView,
-  ]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollButton(true);
-      } else {
-        setShowScrollButton(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
 
   return (
     <>
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white overflow-x-hidden">
         <Header />
 
-        {/* Hero Section CRM - Sans filtre */}
-        <section id="accueil" className="pt-16 md:pt-0" ref={heroRef}>
+        {/* Hero Section */}
+        <section id="accueil" className="pt-16 md:pt-0">
           <div className="relative h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden">
             {slides.map((slide, index) => (
               <motion.div
@@ -281,17 +146,15 @@ const Home = () => {
                 transition={{ duration: 1.2, ease: "easeInOut" }}
                 className="absolute inset-0"
               >
-                {/* Image de fond sans filtre */}
+                {/* Image de fond */}
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
                     backgroundImage: `url(${slide.image})`,
-                    transform: `scale(${index === currentSlide ? 1 : 1})`,
-                    transition: "transform 10s ease-out",
                   }}
                 />
 
-                {/* Overlay léger seulement pour améliorer la lisibilité du texte */}
+                {/* Overlay */}
                 <div className="absolute inset-0 bg-black/20"></div>
 
                 <div className="relative h-full flex items-center">
@@ -302,7 +165,6 @@ const Home = () => {
                       transition={{ delay: 0.3, duration: 0.8 }}
                       className="max-w-xl md:max-w-2xl text-white"
                     >
-                      
                       <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 leading-tight text-white drop-shadow-lg">
                         {slide.title}
                       </h1>
@@ -311,21 +173,14 @@ const Home = () => {
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4 mb-2">
                         <Link
-                          to="/commande"
-                          className="group relative bg-gradient-to-r from-blue-600 to-primary-700 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl text-base font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden text-center"
+                          to="/login"
+                          className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl text-base font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden text-center"
                         >
                           <span className="relative z-10 flex items-center gap-2">
                             {slide.cta}
                             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                           </span>
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-primary-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </Link>
-                        <button className="group bg-white/20 backdrop-blur-sm border border-white/30 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl text-base font-semibold hover:bg-white/30 transition-all duration-300">
-                          <span className="flex items-center justify-center gap-2">
-                            <Phone className="h-5 w-5 group-hover:animate-pulse" />
-                            Demander une démo
-                          </span>
-                        </button>
                       </div>
                       <div className="flex items-center gap-6 mt-8">
                         <div className="flex items-center gap-2">
@@ -385,11 +240,7 @@ const Home = () => {
           </div>
 
           {/* Statistiques rapides */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={controls.hero}
-            className="container mx-auto px-4 md:px-6 lg:px-8 -mt-8 md:-mt-12 relative z-10"
-          >
+          <div className="container mx-auto px-4 md:px-6 lg:px-8 -mt-8 md:-mt-12 relative z-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 {
@@ -411,7 +262,7 @@ const Home = () => {
                   color: "from-purple-500 to-pink-500",
                 },
                 {
-                  icon: <Clock className="h-7 w-7" />,
+                  icon: <BarChart3 className="h-7 w-7" />,
                   title: "Temps gagné",
                   value: "70%",
                   color: "from-orange-500 to-red-500",
@@ -437,21 +288,13 @@ const Home = () => {
                 </motion.div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* Section Fonctionnalités */}
-        <section
-          id="fonctionnalites"
-          className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50"
-          ref={featuresRef}
-        >
+        <section className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={controls.features}
-              className="text-center mb-12 md:mb-16"
-            >
+            <div className="text-center mb-12 md:mb-16">
               <span className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full font-semibold text-sm mb-4">
                 Pourquoi choisir notre CRM
               </span>
@@ -459,10 +302,9 @@ const Home = () => {
                 Transformez votre gestion commerciale
               </h2>
               <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-                Un CRM complet conçu pour simplifier vos processus et booster
-                vos résultats
+                Un CRM complet conçu pour simplifier vos processus et booster vos résultats
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
@@ -500,18 +342,10 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Section Produits Phares - Simplifiée */}
-        <section
-          id="produits"
-          className="py-16 md:py-24 bg-white"
-          ref={productsRef}
-        >
+        {/* Section Produits - Données de la base de données */}
+        <section id="produits" className="py-16 md:py-24 bg-white">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={controls.products}
-              className="text-center mb-12 md:mb-16"
-            >
+            <div className="text-center mb-12 md:mb-16">
               <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-sm mb-4">
                 Nos Solutions
               </span>
@@ -519,657 +353,134 @@ const Home = () => {
                 Produits Phares
               </h2>
               <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-                Découvrez nos meilleures solutions CRM
+                Découvrez nos meilleures solutions depuis notre catalogue
               </p>
-            </motion.div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {featuredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
-                >
-                  {/* Image du produit */}
-                  <div className="relative aspect-square overflow-hidden bg-gray-100">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover  group-hover:scale-110 transition-transform duration-500"
-                    />
-
-                    {/* Prix superposé sur l'image */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                      <div className="flex flex-col">
-                        <span className="text-white text-sm font-medium truncate">
-                          {product.name}
-                        </span>
-                        <span className="text-white text-lg font-bold">
-                          {product.price}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
             </div>
 
-            {/* Bouton Voir plus */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mt-12 text-center"
-            >
-              <Link
-                to="/produits/list"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all"
-              >
-                <ShoppingBag className="h-5 w-5" />
-                Voir tous nos produits
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </motion.div>
-          </div>
-        </section>
+            {/* État de chargement */}
+            {productsLoading && (
+              <div className="text-center py-12">
+                <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-600">Chargement des produits...</p>
+              </div>
+            )}
 
-        {/* Section Dashboard Preview */}
-        <section
-          id="dashboard"
-          className="py-16 md:py-24 bg-gradient-to-br from-gray-900 to-black text-white"
-          ref={dashboardRef}
-        >
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={controls.dashboard}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-            >
-              <div>
-                <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full font-semibold text-sm mb-4">
-                  Interface intuitive
-                </span>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                  Tableaux de bord puissants et personnalisables
-                </h2>
-                <p className="text-lg md:text-xl text-gray-300 mb-8">
-                  Visualisez toutes vos données commerciales en un coup d'œil.
-                  Suivez vos KPIs, analysez vos performances et prenez des
-                  décisions éclairées.
+            {/* État d'erreur */}
+            {productsError && (
+              <div className="text-center py-12">
+                <Package className="w-16 h-16 mx-auto mb-4 text-red-300" />
+                <h3 className="text-xl font-medium mb-2 text-red-600">
+                  {productsError}
+                </h3>
+                <button
+                  onClick={loadProducts}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Réessayer
+                </button>
+              </div>
+            )}
+
+            {/* Aucun produit */}
+            {!productsLoading && !productsError && products.length === 0 && (
+              <div className="text-center py-12">
+                <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-xl font-medium mb-2 text-gray-600">
+                  Aucun produit disponible
+                </h3>
+                <p className="text-gray-500">
+                  Les produits seront affichés ici une fois ajoutés.
                 </p>
-
-                <div className="space-y-6">
-                  {[
-                    {
-                      icon: <Activity className="h-6 w-6" />,
-                      text: "Suivi en temps réel des opportunités",
-                    },
-                    {
-                      icon: <Target className="h-6 w-6" />,
-                      text: "Objectifs personnalisés par équipe",
-                    },
-                    {
-                      icon: <BarChart3 className="h-6 w-6" />,
-                      text: "Rapports automatiques par email",
-                    },
-                    {
-                      icon: <Calendar className="h-6 w-6" />,
-                      text: "Planification intelligente des rendez-vous",
-                    },
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className="p-2 bg-blue-600/20 rounded-lg">
-                        {item.icon}
-                      </div>
-                      <span className="text-lg">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-10 flex gap-4">
-                  <button className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all">
-                    Essayer la démo
-                  </button>
-                  <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all">
-                    Voir tous les rapports
-                  </button>
-                </div>
               </div>
+            )}
 
-              <div className="relative">
-                {/* Preview du dashboard */}
-                <div className="bg-gray-800 rounded-2xl p-6 shadow-2xl">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-600 rounded-lg">
-                        <BarChart3 className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold">Dashboard Ventes</h3>
-                        <p className="text-gray-400 text-sm">
-                          Mise à jour en temps réel
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-400">Aujourd'hui</div>
-                  </div>
+            {/* Grille de produits */}
+            {!productsLoading && !productsError && products.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                {products.map((product) => {
+                  if (!product || !product.id) return null;
+                  
+                  return (
+                    <div
+                      key={product.id}
+                      className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="relative aspect-square overflow-hidden bg-gray-100">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name || 'Produit'}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) {
+                                e.target.nextSibling.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        
+                        {/* Fallback si image non trouvée */}
+                        <div 
+                          className="w-full h-full flex items-center justify-center bg-gray-100"
+                          style={{ display: product.imageUrl ? 'none' : 'flex' }}
+                        >
+                          <Package className="w-12 h-12 text-gray-300" />
+                        </div>
 
-                  {/* Mini graphiques */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-900/50 p-4 rounded-xl">
-                      <p className="text-gray-400 text-sm">
-                        Chiffre d'affaires
-                      </p>
-                      <p className="text-2xl font-bold">€125,430</p>
-                      <p className="text-green-500 text-sm">+12.5%</p>
-                    </div>
-                    <div className="bg-gray-900/50 p-4 rounded-xl">
-                      <p className="text-gray-400 text-sm">Nouveaux clients</p>
-                      <p className="text-2xl font-bold">42</p>
-                      <p className="text-green-500 text-sm">+8.2%</p>
-                    </div>
-                  </div>
+                        {/* Prix superposé */}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                          <span className="text-white text-lg font-bold">
+                            {formatPrice(product.price)}
+                          </span>
+                        </div>
 
-                  {/* Barres de progression */}
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Pipeline des ventes</span>
-                        <span>75%</span>
-                      </div>
-                      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 w-3/4"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Taux de conversion</span>
-                        <span>42%</span>
-                      </div>
-                      <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-2/5"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        {/* Badge de stock si faible */}
+                        {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+                          <div className="absolute top-2 right-2 px-2 py-1 bg-orange-500 text-white text-xs font-medium rounded-full">
+                            Stock faible
+                          </div>
+                        )}
 
-                {/* Éléments flottants */}
-                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-xl shadow-2xl">
-                  <Award className="h-8 w-8 text-white" />
-                </div>
-                <div className="absolute -bottom-4 -left-4 bg-gradient-to-r from-orange-600 to-red-600 p-4 rounded-xl shadow-2xl">
-                  <Zap className="h-8 w-8 text-white" />
-                </div>
+                        {/* Badge rupture de stock */}
+                        {product.stockQuantity <= 0 && (
+                          <div className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full">
+                            Rupture
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Section Témoignages */}
-        <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-12 md:mb-16">
-              <span className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full font-semibold text-sm mb-4">
-                Ils nous font confiance
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                Ce que disent nos clients
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all"
-                >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                      {testimonial.avatar}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg">{testimonial.name}</h4>
-                      <p className="text-gray-600">{testimonial.role}</p>
-                      <p className="text-sm text-gray-500">
-                        {testimonial.company}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 italic mb-6">
-                    "{testimonial.content}"
-                  </p>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="w-5 h-5 text-yellow-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section Services */}
-        <section
-          id="services"
-          className="py-16 md:py-24 bg-gradient-to-br from-blue-50 to-cyan-50"
-        >
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-12 md:mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                Nos services inclus
-              </h2>
-              <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-                Tout ce dont vous avez besoin pour réussir avec votre CRM
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {services.map((service, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
-                >
-                  <div className={`${service.color} p-8`}>
-                    <div className="text-white">{service.icon}</div>
-                  </div>
-                  <div className="p-6 md:p-8">
-                    <h3 className="text-xl md:text-2xl font-bold mb-4">
-                      {service.title}
-                    </h3>
-                    <p className="text-gray-600 mb-6">{service.description}</p>
-                    <button className="flex items-center text-blue-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="mr-2">En savoir plus</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            )}
           </div>
         </section>
 
         {/* Section Contact */}
-        <section
-          id="contact"
-          className="py-16 md:py-24 bg-white"
-          ref={contactRef}
-        >
+        <section id="contact" className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={controls.contact}
-              className="max-w-6xl mx-auto"
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                {/* Informations de contact */}
-                <div>
-                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                    Prêt à transformer votre business ?
-                  </h2>
-                  <p className="text-lg md:text-xl text-gray-600 mb-12">
-                    Contactez-nous pour une démonstration personnalisée de notre
-                    solution CRM
-                  </p>
+            <div className="text-center mb-12 md:mb-16">
+              <span className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full font-semibold text-sm mb-4">
+                Contactez-nous
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+                Prêt à booster vos ventes ?
+              </h2>
+              <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+                Obtenez une démonstration personnalisée et découvrez comment notre CRM peut transformer votre business
+              </p>
+            </div>
 
-                  <div className="space-y-8">
-                    {[
-                      {
-                        icon: <Phone className="h-6 w-6" />,
-                        title: "Téléphone",
-                        detail: "+33 1 23 45 67 89",
-                        action: "Appeler maintenant",
-                        link: "tel:+33123456789",
-                      },
-                      {
-                        icon: <Mail className="h-6 w-6" />,
-                        title: "Email",
-                        detail: "contact@votre-crm.com",
-                        action: "Envoyer un email",
-                        link: "mailto:contact@votre-crm.com",
-                      },
-                      {
-                        icon: <MapPin className="h-6 w-6" />,
-                        title: "Siège social",
-                        detail: "123 Avenue des Champs-Élysées, 75008 Paris",
-                        action: "Voir sur la carte",
-                        link: "#",
-                      },
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-start space-x-4">
-                        <div className="p-3 bg-blue-50 rounded-xl">
-                          <div className="text-blue-600">{item.icon}</div>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-lg mb-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-gray-700 text-base mb-2">
-                            {item.detail}
-                          </p>
-                          <a
-                            href={item.link}
-                            className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-                          >
-                            {item.action} →
-                          </a>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Réseaux sociaux */}
-                  <div className="mt-12">
-                    <h3 className="font-bold text-xl mb-6">Suivez-nous</h3>
-                    <div className="flex space-x-4">
-                      {[
-                        {
-                          icon: <Facebook className="h-6 w-6" />,
-                          color: "bg-blue-600",
-                          link: "#",
-                        },
-                        {
-                          icon: <Twitter className="h-6 w-6" />,
-                          color: "bg-sky-500",
-                          link: "#",
-                        },
-                        {
-                          icon: <Instagram className="h-6 w-6" />,
-                          color: "bg-pink-600",
-                          link: "#",
-                        },
-                        {
-                          icon: <Linkedin className="h-6 w-6" />,
-                          color: "bg-blue-700",
-                          link: "#",
-                        },
-                      ].map((social, index) => (
-                        <a
-                          key={index}
-                          href={social.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${social.color} text-white p-3 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300`}
-                        >
-                          {social.icon}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Formulaire de contact fonctionnel */}
-                <ContactForm />
-              </div>
-            </motion.div>
+            <div className="max-w-2xl mx-auto">
+              <ContactForm />
+            </div>
           </div>
         </section>
+
         <Footer />
       </div>
-
-      {showScrollButton && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-8 right-8 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-50"
-          aria-label="Remonter en haut de la page"
-        >
-          <ChevronUp className="w-6 h-6" />
-        </button>
-      )}
     </>
-  );
-};
-
-// Composant ContactForm fonctionnel
-const ContactForm = () => {
-  const [formData, setFormData] = useState({
-    nom: '',
-    entreprise: '',
-    email: '',
-    telephone: '',
-    message: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    // Validation côté client
-    if (!formData.nom.trim()) {
-      setError('Le nom est requis');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      setError('L\'email est requis');
-      setLoading(false);
-      return;
-    }
-
-    // Validation format email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Veuillez saisir un email valide');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      console.log('📤 Envoi prospect:', formData);
-      
-      const response = await api.post('/api/prospects', {
-        ...formData,
-        source: 'website'
-      });
-      
-      console.log('✅ Réponse API:', response.data);
-
-      if (response.data.success) {
-        setSuccess(true);
-        setFormData({ nom: '', entreprise: '', email: '', telephone: '', message: '' });
-        
-        // Scroll vers le haut pour voir le message de succès
-        setTimeout(() => {
-          document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    } catch (error) {
-      console.error('❌ Erreur envoi prospect:', error);
-      
-      if (error.response?.status === 409) {
-        setError('Un prospect avec cet email existe déjà. Nous vous contacterons bientôt.');
-      } else if (error.response?.data?.message) {
-        setError(error.response.data.message);
-      } else {
-        setError('Une erreur est survenue. Veuillez réessayer plus tard.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (success) {
-    return (
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center border border-green-200">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", duration: 0.5 }}
-        >
-          <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-        </motion.div>
-        <h3 className="text-2xl font-bold text-green-800 mb-2">
-          Demande envoyée avec succès !
-        </h3>
-        <p className="text-green-700 mb-4">
-          Merci pour votre intérêt. Notre équipe vous contactera dans les plus brefs délais pour organiser votre démonstration personnalisée.
-        </p>
-        <button 
-          onClick={() => setSuccess(false)}
-          className="inline-flex items-center gap-2 text-green-600 hover:text-green-800 font-medium transition-colors"
-        >
-          <ArrowRight className="w-4 h-4" />
-          Envoyer une nouvelle demande
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-gradient-to-br from-gray-900 to-black text-white rounded-2xl shadow-2xl p-8">
-      <h3 className="text-2xl font-bold mb-2">
-        Demandez une démo gratuite
-      </h3>
-      <p className="text-gray-300 mb-6">
-        Découvrez comment notre CRM peut transformer votre business
-      </p>
-
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-lg mb-6"
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            {error}
-          </div>
-        </motion.div>
-      )}
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Nom *
-            </label>
-            <input
-              type="text"
-              name="nom"
-              required
-              value={formData.nom}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
-              placeholder="Votre nom"
-              disabled={loading}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Entreprise
-            </label>
-            <input
-              type="text"
-              name="entreprise"
-              value={formData.entreprise}
-              onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
-              placeholder="Nom de votre entreprise"
-              disabled={loading}
-            />
-          </div>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Email *
-          </label>
-          <input
-            type="email"
-            name="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
-            placeholder="votre@email.com"
-            disabled={loading}
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Téléphone
-          </label>
-          <input
-            type="tel"
-            name="telephone"
-            value={formData.telephone}
-            onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400"
-            placeholder="+33 1 23 45 67 89"
-            disabled={loading}
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Message
-          </label>
-          <textarea
-            name="message"
-            rows={4}
-            value={formData.message}
-            onChange={handleChange}
-            className="w-full px-4 py-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-white placeholder-gray-400 resize-none"
-            placeholder="Parlez-nous de vos besoins CRM, nombre d'utilisateurs, secteur d'activité..."
-            disabled={loading}
-          />
-        </div>
-        
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl text-lg font-semibold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-        >
-          {loading ? (
-            <div className="flex items-center justify-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Envoi en cours...
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-2">
-              <Mail className="w-5 h-5" />
-              Demander ma démo gratuite
-            </div>
-          )}
-        </button>
-
-        <p className="text-xs text-gray-400 text-center">
-          En soumettant ce formulaire, vous acceptez d'être contacté par notre équipe commerciale.
-        </p>
-      </form>
-    </div>
   );
 };
 

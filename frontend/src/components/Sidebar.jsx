@@ -111,7 +111,7 @@ function Sidebar({ isOpen }) {
       <div className="sidebar-header">
         <div className="logo">
           <div className="logo-icon">CRM</div>
-          {isOpen && <span className="logo-text">Business CRM</span>}
+          {isOpen && <span className="logo-text">DIGI-DEV</span>}
         </div>
       </div>
 

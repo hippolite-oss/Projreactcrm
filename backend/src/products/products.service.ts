@@ -33,5 +33,20 @@ export class ProductsService {
   async remove(id: number): Promise<void> {
     await this.productsRepository.delete(id);
   }
+
+  // Méthode publique pour la page d'accueil
+  async getFeaturedProducts(): Promise<Product[]> {
+    console.log('🔍 Récupération des produits phares...');
+    
+    const products = await this.productsRepository.find({
+      where: { active: true },
+      order: { createdAt: 'DESC' },
+      take: 8, // Limiter à 8 produits
+      select: ['id', 'name', 'price', 'imageUrl', 'stockQuantity', 'category'] // Sélectionner seulement les champs nécessaires
+    });
+
+    console.log(`✅ ${products.length} produits phares récupérés`);
+    return products;
+  }
 }
 

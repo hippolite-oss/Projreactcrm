@@ -106,7 +106,7 @@ const Header = () => {
                 className="h-14 w-10 object-contain rounded-lg shadow-sm"
               />
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                {parametres?.nom_societe || "CRM"}
+                {parametres?.nom_societe || "DIGI-DEV"}
               </span>
             </Link>
 

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
 import { 
-  Users, Package, TrendingUp, DollarSign, 
-  UserPlus, Target, Activity, ArrowUpRight,
+  Users, Package, TrendingUp, DollarSign, UserPlus, Target, Activity, ArrowUpRight,
   Home, ShoppingCart, Clock, Settings, RefreshCw, Database
 } from 'lucide-react'
 import {
@@ -34,7 +33,7 @@ function Dashboard() {
     newClients: 0,
     conversionRate: 0
   })
-  
+
   const [loading, setLoading] = useState(false)
   const [time, setTime] = useState(new Date())
   const [timeRange, setTimeRange] = useState('month')
@@ -52,16 +51,6 @@ function Dashboard() {
     { name: 'Prospects/Contacts', value: 0 }
   ])
 
-  // Fonction de formatage de devise
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount).replace('€', 'F')
-  }
-
   // Mettre à jour l'heure en temps réel
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000)
@@ -72,7 +61,7 @@ function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Récupérer les vraies données depuis les différents endpoints avec la même logique que les pages
       const [
         clientsResponse,
@@ -98,12 +87,12 @@ function Dashboard() {
       const totalProducts = Array.isArray(productsResponse.data) ? productsResponse.data.length : 0;
       const totalQuotes = Array.isArray(quotesResponse.data) ? quotesResponse.data.length : 0;
       const totalInvoices = Array.isArray(invoicesResponse.data) ? invoicesResponse.data.length : 0;
-      
+
       // Pour les commandes, utiliser la même structure que CommandesOnline.jsx
       const totalCommandes = commandesResponse.data?.success 
         ? (commandesResponse.data?.data?.length || 0)
         : 0;
-      
+
       // Pour les prospects, utiliser la même structure que Prospects.jsx
       const totalProspects = prospectsResponse.data?.success 
         ? (prospectsResponse.data?.data?.length || 0)
@@ -152,21 +141,21 @@ function Dashboard() {
       };
 
       setStats(statsFinales);
-      
+
       // Générer les données des graphiques basées sur les vraies données
       try {
         // Données pour le graphique d'évolution des clients (basé sur les vraies données)
         const currentMonth = new Date().getMonth(); // 0 = Janvier
         const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-        
+
         const clientEvolutionData = [];
-        
+
         // Si on a des vraies données, créer une progression réaliste
         if (totalClients > 0 || totalProspects > 0) {
           // Utiliser les vraies données comme point final (janvier = données actuelles)
           const clientsActuels = totalClients; // 4 clients
           const contactsActuels = totalProspects; // 9 prospects/contacts
-          
+
           // Créer une progression réaliste sur 6 mois menant aux données actuelles
           const progressionClients = [
             Math.max(0, Math.floor(clientsActuels * 0.25)), // Il y a 5 mois: 25% des clients actuels
@@ -176,7 +165,7 @@ function Dashboard() {
             Math.max(0, Math.floor(clientsActuels * 0.85)), // Le mois dernier: 85%
             clientsActuels // Ce mois (janvier): données réelles
           ];
-          
+
           const progressionContacts = [
             Math.max(0, Math.floor(contactsActuels * 0.30)), // Il y a 5 mois
             Math.max(0, Math.floor(contactsActuels * 0.45)), // Il y a 4 mois
@@ -185,11 +174,11 @@ function Dashboard() {
             Math.max(0, Math.floor(contactsActuels * 0.90)), // Le mois dernier
             contactsActuels // Ce mois: données réelles
           ];
-          
+
           for (let i = 0; i < 6; i++) {
             const monthIndex = (currentMonth - 5 + i + 12) % 12;
             const monthName = months[monthIndex];
-            
+
             clientEvolutionData.push({
               month: monthName,
               clients: progressionClients[i],
@@ -208,7 +197,7 @@ function Dashboard() {
             });
           }
         }
-        
+
         setClientData(clientEvolutionData);
 
         // Données pour la répartition des clients (basé sur les vraies données)
@@ -216,7 +205,7 @@ function Dashboard() {
           // Avec 4 clients, supposons 3 actifs et 1 inactif (75% actifs)
           const activeClients = Math.max(0, Math.floor(totalClients * 0.75));
           const inactiveClients = Math.max(0, totalClients - activeClients);
-          
+
           setStatusData([
             { name: 'Clients Actifs', value: activeClients },
             { name: 'Clients Inactifs', value: inactiveClients },
@@ -229,13 +218,12 @@ function Dashboard() {
             { name: 'Prospects/Contacts', value: 0 }
           ]);
         }
-
       } catch (error) {
         console.log('Erreur lors du calcul des données graphiques:', error);
         // Données par défaut en cas d'erreur
         const currentMonth = new Date().getMonth();
         const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-        
+
         const defaultData = [];
         for (let i = 0; i < 6; i++) {
           const monthIndex = (currentMonth - 5 + i + 12) % 12;
@@ -247,7 +235,7 @@ function Dashboard() {
           });
         }
         setClientData(defaultData);
-        
+
         setStatusData([
           { name: 'Clients Actifs', value: 0 },
           { name: 'Clients Inactifs', value: 0 },
@@ -275,7 +263,7 @@ function Dashboard() {
       contacts: 0, // Contacts au lieu de newClients
       conversionRate: 0
     });
-    
+
     setClientData([
       { month: 'Jan', clients: 0, newClients: 0 },
       { month: 'Fév', clients: 0, newClients: 0 },
@@ -284,7 +272,7 @@ function Dashboard() {
       { month: 'Mai', clients: 0, newClients: 0 },
       { month: 'Jun', clients: 0, newClients: 0 }
     ]);
-    
+
     setStatusData([
       { name: 'Clients Actifs', value: 0 },
       { name: 'Clients Inactifs', value: 0 },
@@ -375,7 +363,7 @@ function Dashboard() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <select 
                 className="px-6 py-3 border-2 border-blue-200 rounded-xl bg-white/80 backdrop-blur-sm text-slate-700 font-medium focus:ring-4 focus:ring-blue-200 focus:border-blue-300 transition-all duration-300"
@@ -395,7 +383,6 @@ function Dashboard() {
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 {t('refresh', 'Actualiser')}
               </button>
-             
             </div>
           </div>
         </div>
@@ -419,11 +406,16 @@ function Dashboard() {
               'from-yellow-400 to-orange-500'
             ]
             return (
-              <div key={index} className={`bg-gradient-to-br ${gradients[index]} p-1 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 hover:-rotate-1`}>
+              <div 
+                key={index} 
+                className={`bg-gradient-to-br ${gradients[index]} p-1 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 hover:-rotate-1`}
+              >
                 <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 h-full">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-2">{card.label}</p>
+                      <p className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-2">
+                        {card.label}
+                      </p>
                       <p className="text-4xl font-black text-gray-900 mb-3">
                         {card.value}
                       </p>
@@ -437,12 +429,13 @@ function Dashboard() {
                         )}
                         <span className={`text-sm font-bold ${
                           card.trend === 'up' ? 'text-green-600' : 
-                          card.trend === 'down' ? 'text-red-600' : 
-                          'text-gray-500'
+                          card.trend === 'down' ? 'text-red-600' : 'text-gray-500'
                         }`}>
                           {card.change}
                         </span>
-                        <span className="text-xs text-gray-600 ml-1 font-medium">{t('vsLastMonth', 'vs mois dernier')}</span>
+                        <span className="text-xs text-gray-600 ml-1 font-medium">
+                          {t('vsLastMonth', 'vs mois dernier')}
+                        </span>
                       </div>
                     </div>
                     <div className={`p-4 rounded-2xl bg-gradient-to-br ${iconBgs[index]} shadow-lg transform hover:scale-110 transition-transform duration-300`}>
@@ -473,7 +466,10 @@ function Dashboard() {
             <div className="p-6">
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={clientData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart 
+                    data={clientData} 
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis 
                       dataKey="month" 
@@ -517,7 +513,7 @@ function Dashboard() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              
+
               {/* Statistiques fréquentielles */}
               <div className="mt-4 grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                 <div className="text-center">
@@ -589,7 +585,7 @@ function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              
+
               {/* Légende professionnelle */}
               <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-gray-100">
                 {statusData.map((item, index) => {
@@ -613,17 +609,8 @@ function Dashboard() {
             </div>
           </div>
         </div>
-
-       
-       
-
-          
-
-        
-                
-
-        
       </div>
+
       {/* Footer simple */}
       <footer className="mt-16 py-6 bg-white border-t border-gray-200">
         <div className="container mx-auto px-6">
@@ -635,10 +622,6 @@ function Dashboard() {
     </div>
   )
 }
-
-
-
-
 
 // Composant TrendingDown
 function TrendingDown({ className }) {

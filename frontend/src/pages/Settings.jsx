@@ -26,7 +26,7 @@ const Settings = () => {
   });
 
   const [companyData, setCompanyData] = useState({
-    nom_societe: 'Quincaillerie Pro',
+    nom_societe: 'DIGI-DEV',
     adresse: '123 Rue de l\'Industrie',
     ville: 'Paris',
     code_postal: '75001',

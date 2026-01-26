@@ -73,7 +73,7 @@ function AppRoutes() {
         <Route path="clients" element={<Clients />} />
         <Route path="nouveauclient" element={<Nouveauclient />} />
         <Route path="contacts" element={<Contacts />} />
-        <Route path="nouveaucontact" element={<Nouveaucontact />} />
+        <Route path="nouveaucontact" element={<Nouveaucontact />} />  
         <Route path="products" element={<Products />} />
         <Route path="quotes" element={<Quotes />} />
         <Route path="invoices" element={<Invoices />} />
