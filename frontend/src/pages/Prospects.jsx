@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import { 
   Search, Loader2, Eye, Phone, Mail, X, Users,
-  Calendar, Building, MapPin, MessageSquare, Settings,
+  Calendar, Building, MapPin, Settings,
   CheckCircle, Clock, Target, Award, XCircle
 } from 'lucide-react';
 
 const Prospects = () => {
+  const { t } = useLanguage(); // Hook pour les traductions
   const [prospects, setProspects] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 15, total: 0, pages: 1 });
   const [loading, setLoading] = useState(true);
@@ -202,10 +204,10 @@ const Prospects = () => {
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Contacts
+                {t('contacts', 'Contacts')}
               </h1>
               <p className="text-lg text-purple-700 dark:text-purple-300 mt-2">
-                Gestion des demandes de démonstration
+                {t('contactManagement', 'Gestion des demandes de démonstration')}
               </p>
             </div>
           </div>
@@ -214,11 +216,11 @@ const Prospects = () => {
           <div className="flex gap-4">
             <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-2xl shadow-lg p-4 text-center">
               <div className="text-2xl font-bold text-orange-600">{prospects.filter(p => p.statut === 'nouveau').length}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Nouveaux</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{t('newProspects', 'Nouveaux')}</div>
             </div>
             <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-2xl shadow-lg p-4 text-center">
               <div className="text-2xl font-bold text-green-600">{prospects.filter(p => p.statut === 'converti').length}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Convertis</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{t('convertedProspects', 'Convertis')}</div>
             </div>
           </div>
         </motion.div>
@@ -230,7 +232,7 @@ const Prospects = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Rechercher nom / entreprise / email..."
+                placeholder={t('search', 'Rechercher') + ' nom / entreprise / email...'}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-white/50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-purple-500 outline-none"
@@ -242,12 +244,12 @@ const Prospects = () => {
               onChange={(e) => setStatutFilter(e.target.value)}
               className="px-4 py-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-white/50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-purple-500 outline-none"
             >
-              <option value="">Tous statuts</option>
-              <option value="nouveau">Nouveau</option>
-              <option value="contacte">Contacté</option>
-              <option value="qualifie">Qualifié</option>
-              <option value="converti">Converti</option>
-              <option value="perdu">Perdu</option>
+              <option value="">{t('allStatuses', 'Tous statuts')}</option>
+              <option value="nouveau">{t('new', 'Nouveau')}</option>
+              <option value="contacte">{t('contacted', 'Contacté')}</option>
+              <option value="qualifie">{t('qualified', 'Qualifié')}</option>
+              <option value="converti">{t('converted', 'Converti')}</option>
+              <option value="perdu">{t('lost', 'Perdu')}</option>
             </select>
 
             <button
@@ -259,7 +261,7 @@ const Prospects = () => {
               className="px-6 py-3 bg-gray-200 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 rounded-xl font-medium transition flex items-center justify-center gap-2"
             >
               <X className="w-5 h-5" />
-              Réinitialiser
+              {t('reset', 'Réinitialiser')}
             </button>
           </div>
         </div>
@@ -274,10 +276,10 @@ const Prospects = () => {
             <div className="text-center py-20">
               <Users className="w-20 h-20 text-gray-400 mx-auto mb-6" />
               <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300">
-                Aucun prospect trouvé
+                {t('noData', 'Aucun prospect trouvé')}
               </h3>
               <p className="text-gray-500 mt-2">
-                Les demandes de démonstration apparaîtront ici
+                {t('contactManagement', 'Les demandes de démonstration apparaîtront ici')}
               </p>
             </div>
           ) : (
@@ -285,12 +287,12 @@ const Prospects = () => {
               <table className="w-full">
                 <thead className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white">
                   <tr>
-                    <th className="px-8 py-5 text-left">Date</th>
-                    <th className="px-8 py-5 text-left">Nom</th>
-                    <th className="px-8 py-5 text-left">Entreprise</th>
-                    <th className="px-8 py-5 text-left">Email</th>
-                    <th className="px-8 py-5 text-center">Statut</th>
-                    <th className="px-8 py-5 text-right">Actions</th>
+                    <th className="px-8 py-5 text-left">{t('date', 'Date')}</th>
+                    <th className="px-8 py-5 text-left">{t('name', 'Nom')}</th>
+                    <th className="px-8 py-5 text-left">{t('company', 'Entreprise')}</th>
+                    <th className="px-8 py-5 text-left">{t('email', 'Email')}</th>
+                    <th className="px-8 py-5 text-center">{t('status', 'Statut')}</th>
+                    <th className="px-8 py-5 text-right">{t('actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-purple-100 dark:divide-purple-900/50">
@@ -330,7 +332,7 @@ const Prospects = () => {
                         </div>
                         {prospect.email_envoye && (
                           <div className="text-xs text-green-600 mt-1">
-                            ✓ Email envoyé
+                            ✓ {t('emailSent', 'Email envoyé')}
                           </div>
                         )}
                       </td>
@@ -346,7 +348,7 @@ const Prospects = () => {
                               setShowDetailModal(true);
                             }}
                             className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition"
-                            title="Voir les détails"
+                            title={t('view', 'Voir les détails')}
                           >
                             <Eye className="w-5 h-5" />
                           </button>
@@ -355,7 +357,7 @@ const Prospects = () => {
                           <div className="relative group">
                             <button
                               className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition disabled:opacity-50"
-                              title="Envoyer un email"
+                              title={t('sendEmail', 'Envoyer un email')}
                               disabled={actionLoading}
                             >
                               <Mail className="w-5 h-5" />
@@ -409,7 +411,7 @@ const Prospects = () => {
                               onClick={() => handleMarquerContacte(prospect.id)}
                               disabled={actionLoading}
                               className="p-2 text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition disabled:opacity-50"
-                              title="Marquer comme contacté"
+                              title={t('markAsContacted', 'Marquer comme contacté')}
                             >
                               <Phone className="w-5 h-5" />
                             </button>
@@ -427,7 +429,7 @@ const Prospects = () => {
           {pagination.pages > 1 && (
             <div className="px-8 py-5 border-t border-purple-200/50 dark:border-purple-800/50 flex items-center justify-between">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Affichage {(pagination.page - 1) * pagination.limit + 1} à {Math.min(pagination.page * pagination.limit, pagination.total)} sur {pagination.total}
+                {t('showing', 'Affichage')} {(pagination.page - 1) * pagination.limit + 1} {t('to', 'à')} {Math.min(pagination.page * pagination.limit, pagination.total)} {t('of', 'sur')} {pagination.total}
               </p>
               <div className="flex gap-3">
                 <button
@@ -435,14 +437,14 @@ const Prospects = () => {
                   onClick={() => fetchProspects(Math.max(1, pagination.page - 1))}
                   className="px-5 py-2 rounded-xl bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-200 dark:hover:bg-purple-800/50 disabled:opacity-50 transition"
                 >
-                  Précédent
+                  {t('previous', 'Précédent')}
                 </button>
                 <button
                   disabled={pagination.page === pagination.pages}
                   onClick={() => fetchProspects(pagination.page + 1)}
                   className="px-5 py-2 rounded-xl bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-200 dark:hover:bg-purple-800/50 disabled:opacity-50 transition"
                 >
-                  Suivant
+                  {t('next', 'Suivant')}
                 </button>
               </div>
             </div>

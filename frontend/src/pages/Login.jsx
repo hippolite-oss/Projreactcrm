@@ -434,31 +434,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      {/* Animation styles */}
-      <style>{`
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-4px); }
-          75% { transform: translateX(4px); }
-        }
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-shake {
-          animation: shake 0.3s;
-        }
-        .animate-slideDown {
-          animation: slideDown 0.2s ease;
-        }
-      `}</style>
     </div>
   );
 };

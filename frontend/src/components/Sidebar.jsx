@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   LayoutDashboard,
   Users,
@@ -19,6 +20,7 @@ import './Sidebar.css';
 function Sidebar({ isOpen }) {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { t } = useLanguage(); // Hook pour les traductions
   const [openSubmenus, setOpenSubmenus] = useState({
     clients: location.pathname.includes('/clients'),
     contacts: location.pathname.includes('/contacts'),
@@ -59,87 +61,47 @@ function Sidebar({ isOpen }) {
     {
       type: 'link',
       path: '/dashboard',
-      label: 'Dashboard',
+      label: t('dashboard', 'Dashboard'),
       icon: LayoutDashboard,
     },
     {
       type: 'link',
       path: '/dashboard/clients',
-      label: 'Clients',
+      label: t('clients', 'Clients'),
       icon: Contact2,
     },
-   // {
-     // type: 'submenu',
-     // label: 'Contacts',
-     // icon: Contact,
-     // key: 'contacts',
-     // items: [
-       // { path: '/dashboard/contacts', label: 'Liste des contacts', icon: Contact }, // Changé ici
-       // { path: '/dashboard/nouveaucontact', label: 'Nouveau contact', icon: Contact2 }, // Ajoutez cette route dans App.jsx si nécessaire
-      //]
-    //},
     {
       type: 'link',
       path: '/dashboard/prospects',
-      label: 'Contacts',
+      label: t('contacts', 'Contacts'),
       icon: Users,
     },
     {
       type: 'submenu',
-      label: 'Produits',
+      label: t('products', 'Produits'),
       icon: Package,
       key: 'products',
       items: [
-        { path: '/dashboard/products', label: 'Nouveau produit', icon: Package }, // Changé ici
-        //{ path: '/dashboard/Listproduits', label: 'Liste des produits', icon: PackagePlus }, // Ajoutez cette route dans App.jsx si nécessaire
-        { path: '/dashboard/categories', label: 'Catégories', icon: FolderTree }, // Nouvelle route
+        { path: '/dashboard/products', label: t('newProduct', 'Nouveau produit'), icon: Package },
+        { path: '/dashboard/categories', label: t('categories', 'Catégories'), icon: FolderTree },
       ]
     },
-     /*{
-      type: 'submenu',
-      label: 'Factures',
-      icon: Receipt,
-      key: 'invoices',
-      items: [
-        { path: '/dashboard/invoices', label: 'Liste des factures', icon: Receipt }, // Changé ici
-        { path: '/dashboard/Listeinvoices', label: 'Nouvelle facture', icon: Receipt }, // Ajoutez cette route dans App.jsx si nécessaire
-      ]
-    },**/
-
-    /*{
-      type: 'submenu',
-      label: 'Devis',
-      icon: FileText,
-      key: 'quotes',
-      items: [
-        { path: '/dashboard/quotes', label: 'Liste des devis', icon: FileText }, // Changé ici
-        //{ path: '/dashboard/nouveaudevis', label: 'Nouveau devis', icon: FilePlus },  Ajoutez cette route dans App.jsx si nécessaire
-      ]
-    },**/
-   /* {
-      type: 'link',
-      path: '/dashboard/commandes',
-      label: 'Mes commandes',
-      icon: ShoppingCart,
-    },**/
     {
       type: 'link',
       path: '/dashboard/CommandesOnline',
-      label: 'Mes commandes en ligne',
+      label: t('onlineOrders', 'Commandes en ligne'),
       icon: ShoppingCart,
     },
-    
-   
     {
       type: 'link',
       path: '/dashboard/reports',
-      label: 'Rapports',
+      label: t('reports', 'Rapports'),
       icon: BarChart3,
     },
     {
       type: 'link',
       path: '/dashboard/settings',
-      label: 'Paramètres',
+      label: t('settings', 'Paramètres'),
       icon: Settings,
     }
   ];

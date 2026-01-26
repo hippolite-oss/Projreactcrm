@@ -74,7 +74,7 @@ const ModalAnnulationCommande = ({ commande, onClose, onAnnuler, loading }) => {
             <div className="space-y-1 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                <span>{formatDate(commande.createdAt || commande.date_creation)}</span>
+                <span>{commande.createdAt ? formatDate(commande.createdAt) : '—'}</span>
               </div>
             </div>
 

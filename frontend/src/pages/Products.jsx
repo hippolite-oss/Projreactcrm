@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import ProductModal from '../components/ProductModal';
 import { 
   Package, Plus, Search, Filter, Edit3, Trash2, Eye, 
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 
 const Products = () => {
+  const { t } = useLanguage(); // Hook pour les traductions
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);

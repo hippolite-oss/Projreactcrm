@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { Menu, Bell, User, LogOut, Settings, ShoppingCart, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { useNavigate } from 'react-router-dom'
+import SimpleLanguageButton from './SimpleLanguageButton'
 import './Topbar.css'
 
 function Topbar({ onMenuClick }) {
   const { user, logout } = useAuth()
+  const { t } = useLanguage() // Hook pour les traductions
   const { notifications } = useNotifications()
   const navigate = useNavigate()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -35,11 +38,14 @@ function Topbar({ onMenuClick }) {
         </div>
       </div>
       <div className="topbar-right">
+        {/* Bouton langue simple avec petit drapeau */}
+        <SimpleLanguageButton size="sm" className="mr-3" />
+        
         <div className="notification-container">
           <button 
             className="notification-button" 
             onClick={handleNotificationClick}
-            title={`${totalNotifications} notification(s)`}
+            title={`${totalNotifications} ${t('notifications', 'notification(s)')}`}
           >
             <Bell size={20} />
             {totalNotifications > 0 && (

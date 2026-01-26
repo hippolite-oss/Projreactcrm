@@ -250,6 +250,21 @@
   color: #666;
 }
 
+.logout-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
 /* Closed State */
 .sidebar.closed {
   width: 70px;

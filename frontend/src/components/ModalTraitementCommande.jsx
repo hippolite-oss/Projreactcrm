@@ -77,7 +77,7 @@ const ModalTraitementCommande = ({ commande, onClose, onTraiter, loading }) => {
               
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                <span>{formatDate(commande.createdAt || commande.date_creation)}</span>
+                <span>{commande.createdAt ? formatDate(commande.createdAt) : '—'}</span>
               </div>
             </div>
 

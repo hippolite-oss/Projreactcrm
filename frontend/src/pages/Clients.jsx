@@ -3,14 +3,16 @@ import {
   Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight, 
   Filter, Users, MapPin, Mail, Phone, Building, Calendar,
   ArrowUpDown, RotateCcw, Download, MoreHorizontal, Star,
-  Globe, Hash, User
+  Globe, Hash, User, X, Save, AlertCircle, CheckCircle
 } from 'lucide-react';
 import api from '../services/api';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import Nouveauclient from './Nouveauclient';
 
 const Client = () => {
   const { showToast } = useNotifications();
+  const { t } = useLanguage(); // Hook pour les traductions
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +20,10 @@ const Client = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [editingClient, setEditingClient] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' ou 'cards'
   const [filters, setFilters] = useState({
     country: '',
@@ -36,11 +41,11 @@ const Client = () => {
       const response = await api.get('/api/clients');
       setClients(response.data);
       setError(null);
-      showToast(`${response.data.length} clients chargés`, 'success');
+      showToast(`${response.data.length} ${t('clients', 'clients')} ${t('dataLoaded', 'chargés')}`, 'success');
     } catch (error) {
       console.error('Erreur:', error);
-      setError('Impossible de charger les clients. Veuillez réessayer.');
-      showToast('Erreur lors du chargement des clients', 'error');
+      setError(t('operationError', 'Impossible de charger les clients. Veuillez réessayer.'));
+      showToast(t('operationError', 'Erreur lors du chargement des clients'), 'error');
     } finally {
       setLoading(false);
     }
@@ -90,7 +95,7 @@ const Client = () => {
   const handleClientAdded = (newClient) => {
     setClients(prev => [newClient, ...prev]);
     setShowAddModal(false);
-    showToast('Client ajouté avec succès', 'success');
+    showToast(t('operationSuccess', 'Client ajouté avec succès'), 'success');
   };
 
   // Gérer la suppression d'un client
@@ -100,12 +105,48 @@ const Client = () => {
       setClients(prev => prev.filter(client => client.id !== selectedClient.id));
       setShowDeleteModal(false);
       setSelectedClient(null);
-      showToast('Client supprimé avec succès', 'success');
+      showToast(t('operationSuccess', 'Client supprimé avec succès'), 'success');
     } catch (error) {
       console.error('Erreur:', error);
-      setError('Erreur lors de la suppression du client');
-      showToast('Erreur lors de la suppression du client', 'error');
+      setError(t('operationError', 'Erreur lors de la suppression du client'));
+      showToast(t('operationError', 'Erreur lors de la suppression du client'), 'error');
     }
+  };
+
+  // Gérer la visualisation d'un client
+  const handleViewClient = (client) => {
+    setSelectedClient(client);
+    setShowViewModal(true);
+  };
+
+  // Gérer la modification d'un client
+  const handleEditClient = (client) => {
+    setEditingClient({ ...client });
+    setShowEditModal(true);
+  };
+
+  // Sauvegarder les modifications d'un client
+  const handleSaveClient = async () => {
+    try {
+      const response = await api.put(`/api/clients/${editingClient.id}`, editingClient);
+      setClients(prev => prev.map(client => 
+        client.id === editingClient.id ? response.data : client
+      ));
+      setShowEditModal(false);
+      setEditingClient(null);
+      showToast(t('operationSuccess', 'Client modifié avec succès'), 'success');
+    } catch (error) {
+      console.error('Erreur:', error);
+      showToast(t('operationError', 'Erreur lors de la modification du client'), 'error');
+    }
+  };
+
+  // Gérer les changements dans le formulaire d'édition
+  const handleEditChange = (field, value) => {
+    setEditingClient(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   // Réinitialiser les filtres
@@ -118,6 +159,48 @@ const Client = () => {
     });
     setSearchTerm('');
     setCurrentPage(1);
+  };
+
+  // Fonction d'export CSV
+  const handleExport = () => {
+    try {
+      // Créer les en-têtes CSV
+      const headers = ['ID', 'Nom', 'Email', 'Téléphone', 'Adresse', 'Ville', 'Code Postal', 'Pays', 'Date d\'ajout'];
+      
+      // Convertir les données en format CSV
+      const csvData = filteredClients.map(client => [
+        client.id || '',
+        client.name || '',
+        client.email || '',
+        client.phone || '',
+        client.address || '',
+        client.city || '',
+        client.postalCode || '',
+        client.country || '',
+        client.createdAt ? new Date(client.createdAt).toLocaleDateString('fr-FR') : ''
+      ]);
+
+      // Combiner headers et données
+      const csvContent = [headers, ...csvData]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+      // Créer et télécharger le fichier
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clients_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast(`${filteredClients.length} ${t('clients', 'clients')} ${t('exported', 'exportés')}`, 'success');
+    } catch (error) {
+      console.error('Erreur export:', error);
+      showToast(t('exportError', 'Erreur lors de l\'export'), 'error');
+    }
   };
 
   // Récupérer les pays et villes uniques pour les filtres
@@ -151,11 +234,11 @@ const Client = () => {
                 <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg mr-3">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900">Gestion des Clients</h1>
+                <h1 className="text-3xl font-bold text-gray-900">{t('clientManagement', 'Gestion des Clients')}</h1>
               </div>
               <p className="text-gray-600">
-                {filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''} 
-                {searchTerm && ` trouvé${filteredClients.length !== 1 ? 's' : ''} pour "${searchTerm}"`}
+                {filteredClients.length} {t('clients', 'client')}{filteredClients.length !== 1 ? 's' : ''} 
+                {searchTerm && ` ${t('results', 'trouvé')}${filteredClients.length !== 1 ? 's' : ''} pour "${searchTerm}"`}
               </p>
             </div>
             
@@ -170,7 +253,7 @@ const Client = () => {
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Tableau
+                  {t('table', 'Tableau')}
                 </button>
                 <button
                   onClick={() => setViewMode('cards')}
@@ -180,14 +263,17 @@ const Client = () => {
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Cartes
+                  {t('cards', 'Cartes')}
                 </button>
               </div>
 
               {/* Bouton Export */}
-              <button className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200">
+              <button 
+                onClick={handleExport}
+                className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+              >
                 <Download className="w-4 h-4 mr-2" />
-                Exporter
+                {t('export', 'Exporter')}
               </button>
 
               {/* Bouton Ajouter */}
@@ -196,7 +282,7 @@ const Client = () => {
                 className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Nouveau client
+                {t('addClient', 'Nouveau Client')}
               </button>
             </div>
           </div>
@@ -421,10 +507,18 @@ const Client = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                            <button 
+                              onClick={() => handleViewClient(client)}
+                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                              title="Visualiser le client"
+                            >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+                            <button 
+                              onClick={() => handleEditClient(client)}
+                              className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
+                              title="Modifier le client"
+                            >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button 
@@ -433,6 +527,7 @@ const Client = () => {
                                 setShowDeleteModal(true);
                               }}
                               className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                              title="Supprimer le client"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -455,10 +550,18 @@ const Client = () => {
                           {client.name?.charAt(0).toUpperCase() || 'C'}
                         </div>
                         <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                          <button 
+                            onClick={() => handleViewClient(client)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                            title="Visualiser le client"
+                          >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200">
+                          <button 
+                            onClick={() => handleEditClient(client)}
+                            className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
+                            title="Modifier le client"
+                          >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button 
@@ -467,6 +570,7 @@ const Client = () => {
                               setShowDeleteModal(true);
                             }}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                            title="Supprimer le client"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -672,6 +776,280 @@ const Client = () => {
                   Supprimer
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale de visualisation */}
+      {showViewModal && selectedClient && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowViewModal(false)}></div>
+            
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            
+            <div className="inline-block align-bottom bg-white rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4 ${getAvatarColor(selectedClient.name)}`}>
+                    {selectedClient.name?.charAt(0).toUpperCase() || 'C'}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">{selectedClient.name || 'Sans nom'}</h3>
+                    <p className="text-sm text-gray-500">#{selectedClient.id}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowViewModal(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Contenu */}
+              <div className="space-y-6">
+                {/* Informations de contact */}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                    <Mail className="w-5 h-5 mr-2 text-blue-600" />
+                    {t('contactInfo', 'Informations de contact')}
+                  </h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    {selectedClient.email && (
+                      <div className="flex items-center">
+                        <Mail className="w-4 h-4 mr-3 text-gray-400" />
+                        <span className="text-gray-900">{selectedClient.email}</span>
+                      </div>
+                    )}
+                    {selectedClient.phone && (
+                      <div className="flex items-center">
+                        <Phone className="w-4 h-4 mr-3 text-gray-400" />
+                        <span className="text-gray-900">{selectedClient.phone}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Adresse */}
+                {(selectedClient.address || selectedClient.city || selectedClient.country) && (
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                      <MapPin className="w-5 h-5 mr-2 text-green-600" />
+                      {t('address', 'Adresse')}
+                    </h4>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                      {selectedClient.address && (
+                        <div className="flex items-center">
+                          <Building className="w-4 h-4 mr-3 text-gray-400" />
+                          <span className="text-gray-900">{selectedClient.address}</span>
+                        </div>
+                      )}
+                      {selectedClient.city && (
+                        <div className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-3 text-gray-400" />
+                          <span className="text-gray-900">
+                            {selectedClient.city}
+                            {selectedClient.postalCode && ` (${selectedClient.postalCode})`}
+                          </span>
+                        </div>
+                      )}
+                      {selectedClient.country && (
+                        <div className="flex items-center">
+                          <Globe className="w-4 h-4 mr-3 text-gray-400" />
+                          <span className="text-gray-900">{selectedClient.country}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Informations système */}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                    <Calendar className="w-5 h-5 mr-2 text-purple-600" />
+                    {t('systemInfo', 'Informations système')}
+                  </h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">{t('createdAt', 'Date de création')} :</span>
+                      <span className="text-gray-900">
+                        {selectedClient.createdAt ? new Date(selectedClient.createdAt).toLocaleDateString('fr-FR') : '-'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">{t('updatedAt', 'Dernière modification')} :</span>
+                      <span className="text-gray-900">
+                        {selectedClient.updatedAt ? new Date(selectedClient.updatedAt).toLocaleDateString('fr-FR') : '-'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    setShowViewModal(false);
+                    handleEditClient(selectedClient);
+                  }}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  {t('edit', 'Modifier')}
+                </button>
+                <button
+                  onClick={() => setShowViewModal(false)}
+                  className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+                >
+                  {t('close', 'Fermer')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale d'édition */}
+      {showEditModal && editingClient && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowEditModal(false)}></div>
+            
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            
+            <div className="inline-block align-bottom bg-white rounded-2xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                  <Edit className="w-6 h-6 mr-2 text-blue-600" />
+                  {t('editClient', 'Modifier le client')}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingClient(null);
+                  }}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Formulaire */}
+              <form onSubmit={(e) => { e.preventDefault(); handleSaveClient(); }} className="space-y-6">
+                {/* Informations de base */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('name', 'Nom')} *
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.name || ''}
+                      onChange={(e) => handleEditChange('name', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('email', 'Email')}
+                    </label>
+                    <input
+                      type="email"
+                      value={editingClient.email || ''}
+                      onChange={(e) => handleEditChange('email', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('phone', 'Téléphone')}
+                    </label>
+                    <input
+                      type="tel"
+                      value={editingClient.phone || ''}
+                      onChange={(e) => handleEditChange('phone', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('address', 'Adresse')}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.address || ''}
+                      onChange={(e) => handleEditChange('address', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('city', 'Ville')}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.city || ''}
+                      onChange={(e) => handleEditChange('city', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('postalCode', 'Code postal')}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.postalCode || ''}
+                      onChange={(e) => handleEditChange('postalCode', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('country', 'Pays')}
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.country || ''}
+                      onChange={(e) => handleEditChange('country', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setEditingClient(null);
+                    }}
+                    className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
+                  >
+                    {t('cancel', 'Annuler')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {t('save', 'Sauvegarder')}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

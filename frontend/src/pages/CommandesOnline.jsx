@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import emailService from '../services/emailService';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import ModalTraitementCommande from '../components/ModalTraitementCommande';
 import ModalAnnulationCommande from '../components/ModalAnnulationCommande';
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 
 const CommandesOnline = () => {
+  const { t } = useLanguage(); // Hook pour les traductions
   const { marquerCommandeLue, rafraichirNotifications } = useNotifications();
   const [commandes, setCommandes] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 15, total: 0, pages: 1 });
@@ -301,7 +303,7 @@ const CommandesOnline = () => {
                       className="hover:bg-purple-50/50 dark:hover:bg-purple-950/30 transition-colors"
                     >
                       <td className="px-8 py-5 font-medium">
-                        {new Date(cmd.date_creation).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}
+                        {cmd.createdAt ? new Date(cmd.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
                       </td>
                       <td className="px-8 py-5 font-medium">{cmd.nom}</td>
                       <td className="px-8 py-5">{cmd.telephone}</td>
@@ -504,7 +506,7 @@ const CommandesOnline = () => {
                     {getStatutBadge(selectedCommande.statut)}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Créée le {formatDate(selectedCommande.createdAt || selectedCommande.date_creation)}
+                    Créée le {selectedCommande.createdAt ? formatDate(selectedCommande.createdAt) : '—'}
                   </p>
                   
                   {/* Informations sur les emails compactes */}

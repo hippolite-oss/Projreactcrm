@@ -8,6 +8,7 @@ import {
   Grid3X3, List, MoreHorizontal, TrendingDown
 } from 'lucide-react';
 import api from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import exportService from '../services/exportService';
 import { testReportsAPI, testExportFunctions } from '../utils/testReports';
 import { useNotifications } from '../contexts/NotificationContext';
@@ -15,6 +16,7 @@ import './ReportsAnimations.css';
 
 function Reports() {
   const { showToast } = useNotifications();
+  const { t } = useLanguage(); // Hook pour les traductions
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [showExportMenu, setShowExportMenu] = useState(false);

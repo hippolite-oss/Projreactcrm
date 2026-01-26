@@ -15,6 +15,7 @@ import { EmailModule } from './email/email.module';
 import { ParametresModule } from './parametres/parametres.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ReportsModule } from './reports/reports.module';
+import { I18nModule } from './i18n/i18n.module';
 import { entities } from './entities';
 
 @Module({
@@ -47,6 +48,7 @@ import { entities } from './entities';
     ParametresModule,
     CategoriesModule,
     ReportsModule,
+    I18nModule,
   ],
 })
 export class AppModule {}

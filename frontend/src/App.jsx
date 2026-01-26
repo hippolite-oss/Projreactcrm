@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { NotificationProvider } from './contexts/NotificationContext'
+import { LanguageProvider } from './contexts/LanguageContext'
 
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -107,7 +108,9 @@ function App() {
     <Router>
       <AuthProvider>
         <NotificationProvider>
-          <AppRoutes />
+          <LanguageProvider>
+            <AppRoutes />
+          </LanguageProvider>
         </NotificationProvider>
       </AuthProvider>
     </Router>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import { 
   Settings as SettingsIcon, User, Building, Users, Mail, Bell, Shield, 
   Eye, Save, RefreshCw, Key, Globe, Palette, Database,
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react';
 
 const Settings = () => {
+  const { t } = useLanguage(); // Hook pour les traductions
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
@@ -173,14 +175,15 @@ const Settings = () => {
   };
 
   const tabs = [
-    { id: 'profile', label: 'Mon Profil', icon: User, color: 'blue' },
-    { id: 'company', label: 'Entreprise', icon: Building, color: 'purple' },
-    { id: 'users', label: 'Utilisateurs', icon: Users, color: 'green' },
-    { id: 'email', label: 'Configuration Email', icon: Mail, color: 'orange' },
-    { id: 'notifications', label: 'Notifications', icon: Bell, color: 'yellow' },
-    { id: 'appearance', label: 'Apparence', icon: Palette, color: 'pink' },
-    { id: 'security', label: 'Sécurité', icon: Shield, color: 'red' },
-    { id: 'system', label: 'Système', icon: Server, color: 'gray' }
+    { id: 'profile', label: t('myProfile', 'Mon Profil'), icon: User, color: 'blue' },
+    { id: 'company', label: t('companySettings', 'Entreprise'), icon: Building, color: 'purple' },
+    { id: 'users', label: t('userManagement', 'Utilisateurs'), icon: Users, color: 'green' },
+    { id: 'email', label: t('emailConfiguration', 'Configuration Email'), icon: Mail, color: 'orange' },
+    { id: 'notifications', label: t('notifications', 'Notifications'), icon: Bell, color: 'yellow' },
+    { id: 'language', label: t('language', 'Langue'), icon: Globe, color: 'cyan' },
+    { id: 'appearance', label: t('appearance', 'Apparence'), icon: Palette, color: 'pink' },
+    { id: 'security', label: t('security', 'Sécurité'), icon: Shield, color: 'red' },
+    { id: 'system', label: t('system', 'Système'), icon: Server, color: 'gray' }
   ];
 
   return (
@@ -198,10 +201,10 @@ const Settings = () => {
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Paramètres
+                {t('settings', 'Paramètres')}
               </h1>
               <p className="text-lg text-purple-700 dark:text-purple-300 mt-2">
-                Configuration et administration du CRM
+                {t('systemConfiguration', 'Configuration et administration du CRM')}
               </p>
             </div>
           </div>
@@ -233,7 +236,7 @@ const Settings = () => {
           {/* Navigation des onglets */}
           <div className="lg:col-span-1">
             <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-200/50 dark:border-purple-800/50 p-6">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">Sections</h3>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">{t('sections', 'Sections')}</h3>
               <nav className="space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -311,6 +314,11 @@ const Settings = () => {
                 />
               )}
 
+              {/* Onglet Langue */}
+              {activeTab === 'language' && (
+                <LanguageSection loading={loading} />
+              )}
+
               {/* Onglet Apparence */}
               {activeTab === 'appearance' && (
                 <AppearanceSection loading={loading} />
@@ -336,6 +344,103 @@ const Settings = () => {
                 />
               )}
 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Composant Section Langue
+const LanguageSection = ({ loading }) => {
+  const { currentLanguage, availableLanguages, changeLanguage, t } = useLanguage();
+  const [saving, setSaving] = useState(false);
+
+  const handleLanguageChange = async (langCode) => {
+    try {
+      setSaving(true);
+      await changeLanguage(langCode);
+    } catch (error) {
+      console.error('Erreur changement de langue:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 mb-8">
+        <Globe className="w-8 h-8 text-cyan-600" />
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
+            {t('languageSettings', 'Paramètres de langue')}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            {t('applicationLanguage', 'Langue de l\'application')}
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-gray-200 dark:border-zinc-700 p-8">
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+              {t('selectLanguage', 'Sélectionner la langue')}
+            </label>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableLanguages.map((language) => (
+                <button
+                  key={language.code}
+                  onClick={() => handleLanguageChange(language.code)}
+                  disabled={saving}
+                  className={`p-6 rounded-xl border-2 transition-all duration-200 ${
+                    currentLanguage === language.code
+                      ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
+                      : 'border-gray-200 dark:border-zinc-600 hover:border-cyan-300 hover:bg-gray-50 dark:hover:bg-zinc-700'
+                  } ${saving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="text-3xl">{language.flag}</span>
+                    <div className="text-left">
+                      <div className="font-semibold text-gray-800 dark:text-gray-200">
+                        {language.name}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {language.code.toUpperCase()}
+                      </div>
+                    </div>
+                    {currentLanguage === language.code && (
+                      <div className="ml-auto">
+                        <Check className="w-6 h-6 text-cyan-600" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {saving && (
+            <div className="flex items-center justify-center py-4">
+              <RefreshCw className="w-5 h-5 animate-spin text-cyan-600 mr-2" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {t('loading', 'Chargement...')}
+              </span>
+            </div>
+          )}
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Globe className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-800 dark:text-blue-200">
+                <p className="font-medium mb-1">Information</p>
+                <p>
+                  Le changement de langue sera appliqué immédiatement à toute l'application. 
+                  Votre préférence sera sauvegardée automatiquement.
+                </p>
+              </div>
             </div>
           </div>
         </div>
