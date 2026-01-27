@@ -254,7 +254,7 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <FaEnvelope className="text-gray-400" /> Adresse email
+                   Adresse email
                 </label>
                 <div className={`relative rounded-lg border-2 transition-all ${emailFocused ? 'border-blue-500 ring-4 ring-blue-100' : validationErrors.email ? 'border-red-500' : email && !validationErrors.email ? 'border-green-500' : 'border-gray-200'}`}>
                   <FaEnvelope className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${emailFocused ? 'text-blue-500' : validationErrors.email ? 'text-red-500' : email && !validationErrors.email ? 'text-green-500' : 'text-gray-400'}`} />
@@ -285,7 +285,7 @@ const Login = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <FaLock className="text-gray-400" /> Mot de passe
+                  Mot de passe
                 </label>
                 <div className={`relative rounded-lg border-2 transition-all ${passwordFocused ? 'border-blue-500 ring-4 ring-blue-100' : validationErrors.password ? 'border-red-500' : password && !validationErrors.password ? 'border-green-500' : 'border-gray-200'}`}>
                   <FaLock className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${passwordFocused ? 'text-blue-500' : validationErrors.password ? 'text-red-500' : password && !validationErrors.password ? 'text-green-500' : 'text-gray-400'}`} />
