@@ -16,11 +16,15 @@ async function bootstrap() {
     PORT: ${process.env.PORT || 3001}
     CORS_ORIGIN: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}
     NODE_ENV: ${process.env.NODE_ENV || 'development'}
+    DATABASE_URL: ${process.env.DATABASE_URL ? 'Configuré' : 'Non configuré'}
     DB_HOST: ${process.env.DB_HOST || 'localhost'}`);
 
-  // Enable CORS
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
-  logger.info(`🌐 CORS configuré pour: ${corsOrigin}`);
+  // Enable CORS - Support pour plusieurs origines en production
+  const corsOrigin = process.env.NODE_ENV === 'production' 
+    ? [process.env.CORS_ORIGIN, process.env.FRONTEND_URL].filter(Boolean)
+    : process.env.CORS_ORIGIN || 'http://localhost:5173';
+    
+  logger.info(`🌐 CORS configuré pour: ${Array.isArray(corsOrigin) ? corsOrigin.join(', ') : corsOrigin}`);
   
   app.enableCors({
     origin: corsOrigin,
@@ -53,8 +57,8 @@ async function bootstrap() {
   // ----------------------------------
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  logger.success(`🎯 Application running on http://localhost:${port}`);
+  await app.listen(port, '0.0.0.0'); // Écouter sur toutes les interfaces pour Render
+  logger.success(`🎯 Application running on port ${port}`);
   logger.info('📊 Logging des requêtes HTTP activé');
 }
 
