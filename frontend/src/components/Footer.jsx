@@ -33,12 +33,12 @@ const Footer = () => {
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-3 mb-6">
               <img 
-                src="logo.jpg" 
+                src="logo3.jpg" 
                 alt="Logo"
                 className="h-8 w-8 object-contain"
               />
               <span className="text-2xl font-bold">
-                {parametres?.nom_societe || 'Quincaillerie'}
+                {parametres?.nom_societe || 'GIGI-DEV'}
               </span>
             </div>
             <p className="text-gray-400 text-sm">

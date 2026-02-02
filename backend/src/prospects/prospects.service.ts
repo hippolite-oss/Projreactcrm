@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { Prospect, ProspectStatus } from './entities/prospect.entity';
@@ -6,15 +6,15 @@ import { CreateProspectDto } from './dto/create-prospect.dto';
 import { UpdateProspectDto } from './dto/update-prospect.dto';
 import { SendEmailProspectDto } from './dto/send-email-prospect.dto';
 import { EmailService } from '../email/email.service';
+import { AppLoggerService } from '../common/services/logger.service';
 
 @Injectable()
 export class ProspectsService {
-  private readonly logger = new Logger(ProspectsService.name);
-
   constructor(
     @InjectRepository(Prospect)
     private prospectRepository: Repository<Prospect>,
     private emailService: EmailService,
+    private logger: AppLoggerService,
   ) {}
 
   /**
@@ -26,7 +26,7 @@ export class ProspectsService {
     message: string;
   }> {
     try {
-      this.logger.log(`📝 Nouvelle soumission prospect: ${createProspectDto.nom} - ${createProspectDto.email}`);
+      this.logger.info(`📝 Nouvelle soumission prospect: ${createProspectDto.nom} - ${createProspectDto.email}`);
 
       // Vérifier si l'email existe déjà
       const existingProspect = await this.prospectRepository.findOne({
@@ -34,7 +34,7 @@ export class ProspectsService {
       });
 
       if (existingProspect) {
-        this.logger.warn(`⚠️ Email déjà existant: ${createProspectDto.email}`);
+        this.logger.warning(`⚠️ Email déjà existant: ${createProspectDto.email}`);
         throw new ConflictException('Un prospect avec cet email existe déjà. Nous vous contacterons bientôt.');
       }
 
@@ -45,7 +45,7 @@ export class ProspectsService {
       });
 
       const savedProspect = await this.prospectRepository.save(prospect);
-      this.logger.log(`✅ Prospect créé avec succès: ID ${savedProspect.id}`);
+      this.logger.success(`✅ Prospect créé avec succès: ID ${savedProspect.id}`);
 
       return {
         success: true,
@@ -53,7 +53,10 @@ export class ProspectsService {
         message: 'Votre demande a été enregistrée avec succès. Notre équipe vous contactera bientôt.'
       };
     } catch (error) {
-      this.logger.error(`❌ Erreur création prospect: ${error.message}`);
+      this.logger.logError(error, {}, { 
+        operation: 'create_prospect', 
+        prospectData: { nom: createProspectDto.nom, email: createProspectDto.email }
+      });
       throw error;
     }
   }
